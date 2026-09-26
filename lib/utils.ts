@@ -70,3 +70,8 @@ export function appUrl(path = "") {
   const base = (process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 }
+
+export function homeworkAppUrl(path = "") {
+  const base = (process.env.HOMEWORK_APP_URL || process.env.APP_URL || "http://localhost:3000").replace(/\/$/, "");
+  return `${base}${path.startsWith("/") ? path : `/${path}`}`;
+}

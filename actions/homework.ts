@@ -2,7 +2,7 @@
 
 import QRCode from "qrcode";
 import { revalidatePath } from "next/cache";
-import { appUrl } from "@/lib/utils";
+import { homeworkAppUrl } from "@/lib/utils";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { firstZodError, homeworkInputSchema, homeworkWriterInputSchema, type HomeworkInput, type HomeworkWriterInput } from "@/lib/validation";
@@ -19,7 +19,7 @@ type CredentialData = {
 };
 
 function writerCredential(rawKey: string, writer: CredentialData["writer"]): Promise<CredentialData> {
-  const loginUrl = appUrl(`/odevler/giris?anahtar=${encodeURIComponent(rawKey)}`);
+  const loginUrl = homeworkAppUrl(`/odevler/giris?anahtar=${encodeURIComponent(rawKey)}`);
   return QRCode.toDataURL(loginUrl, { margin: 1, width: 320 }).then((qrDataUrl) => ({ writer, loginUrl, qrDataUrl }));
 }
 

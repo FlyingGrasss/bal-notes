@@ -44,6 +44,7 @@ and was not modified.
    DIRECT_URL="postgresql://postgres.cyyppepgzyemdrwtuyrs:PASSWORD@aws-1-eu-central-1.pooler.supabase.com:5432/postgres?schema=balnotes"
 
    APP_URL="http://localhost:3000"
+   HOMEWORK_APP_URL="http://localhost:3000"
    AUTH_SECRET="at-least-32-random-characters"
 
    NEXT_PUBLIC_SUPABASE_URL="https://cyyppepgzyemdrwtuyrs.supabase.co"
@@ -238,8 +239,9 @@ preserved old source database.
 For the BAL Notes Vercel project:
 
 1. Add the variables from `.env.example` in both Preview and Production.
-2. Set Production `APP_URL` to `https://notes.balogrenci.org`.
-3. Set Production `BAL_ID_CLIENT_ID` and `BAL_ID_CLIENT_SECRET` to the BAL
+2. Set Production `APP_URL` to `https://notlar.balogrenci.org`.
+3. Set Production `HOMEWORK_APP_URL` to `https://odevler.balogrenci.org`.
+4. Set Production `BAL_ID_CLIENT_ID` and `BAL_ID_CLIENT_SECRET` to the BAL
    Notes Production OAuth client credentials.
 4. Add `notes.balogrenci.org` as the custom domain and wait for HTTPS to be
    active.
