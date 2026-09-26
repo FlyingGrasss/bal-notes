@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Bookmark, Quote, TrendingUp } from "lucide-react";
+import { ArrowRight, BookOpen, Quote, Sparkles, TrendingUp } from "lucide-react";
 import { getHomeData } from "@/lib/data";
 import { GRADE_OPTIONS } from "@/lib/constants";
 import { NoteCard } from "@/components/note-card";
@@ -12,10 +12,8 @@ export default async function HomePage() {
   const { recommended, popular, recent, quotes } = await getHomeData();
   return (
     <>
-      <section className="home-hero">
-        <div className="container-shell py-10 sm:py-16 lg:py-20">
-          <div className="home-hero-coordinates" aria-hidden="true"><span>38°27&apos;N</span><span>BAL / İZMİR</span></div>
-          <div className="hero-panel grid gap-10 p-0 lg:grid-cols-[1fr_21rem] lg:items-end">
+      <section className="container-shell py-8 sm:py-12">
+        <div className="hero-panel grid gap-8 p-6 sm:p-10 lg:grid-cols-[1fr_21rem] lg:items-end">
           <div>
             <p className="eyebrow text-[#ff9baa]">Bornova Anadolu Lisesi</p>
             <h1 className="display-title mt-4 max-w-4xl text-white">Notunu paylaş.<br /><span className="text-[#ff8999]">Sınıfını ileri taşı.</span></h1>
@@ -28,14 +26,13 @@ export default async function HomePage() {
             <blockquote className="relative mt-5 text-2xl font-black leading-tight">{quotes[0] ? `“${quotes[0].quote}”` : "İlk unutulmaz sözü sen paylaş."}</blockquote>
             <p className="relative mt-4 text-sm font-bold text-white/70">{quotes[0] ? `— ${quotes[0].teacherName}` : "— BAL Notes"}</p>
           </div>
-          </div>
-          <div className="home-grade-strip mt-8 grid grid-cols-5 sm:mt-10">
-          {GRADE_OPTIONS.map((grade) => <Link key={grade.value} href={`/notlar?sinif=${grade.value}`} className="home-grade-item flex flex-col items-center justify-center p-2 text-center"><span className="text-xl font-black text-white sm:text-2xl">{grade.short}</span><span className="mt-1 text-[9px] font-bold uppercase tracking-wider text-white/45 sm:text-[11px]">{grade.label}</span></Link>)}
-          </div>
+        </div>
+        <div className="mt-4 grid grid-cols-5 gap-2 sm:mt-5 sm:gap-3">
+          {GRADE_OPTIONS.map((grade) => <Link key={grade.value} href={`/notlar?sinif=${grade.value}`} className="paper-card grade-card flex flex-col items-center justify-center p-2 text-center"><span className="text-xl font-black text-bal sm:text-2xl">{grade.short}</span><span className="mt-1 text-[9px] font-bold uppercase tracking-wider text-muted sm:text-[11px]">{grade.label}</span></Link>)}
         </div>
       </section>
 
-      <HomeSection eyebrow="Editör seçkisi" title="Önerilen notlar" icon={<Bookmark size={18} />} href="/notlar">
+      <HomeSection eyebrow="Editör seçkisi" title="Önerilen notlar" icon={<Sparkles size={18} />} href="/notlar">
         {recommended.length ? <div className="grid gap-4 lg:grid-cols-2">{recommended.map((note) => <NoteCard key={note.id} note={note} featured />)}</div> : <EmptyState title="Henüz önerilen not yok" description="İlk notlar onaylandığında burada görünecek." />}
       </HomeSection>
 

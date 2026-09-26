@@ -48,8 +48,8 @@ export function SiteHeaderClient({ user }: { user: HeaderUser | null }) {
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className="site-header fixed inset-x-0 top-0 z-50 border-b border-black/10 bg-white/95 backdrop-blur-xl" data-hidden={hidden && !menuOpen}>
-      <div className="container-shell flex h-[4.5rem] items-center justify-between gap-4">
+    <header className="site-header fixed inset-x-0 top-0 z-50 border-b border-black/8 bg-white/92 backdrop-blur-xl" data-hidden={hidden && !menuOpen}>
+      <div className="container-shell flex h-16 items-center justify-between gap-4">
         <Link href="/" className="flex min-w-0 items-center gap-2.5" aria-label="BAL Notes ana sayfa" onClick={() => setMenuOpen(false)}>
           <Image src="/bal-logo.png" alt="Bornova Anadolu Lisesi" width={42} height={42} priority className="size-10 shrink-0 rounded-full object-contain sm:size-11" />
           <div className="min-w-0">
@@ -95,7 +95,7 @@ export function SiteHeaderClient({ user }: { user: HeaderUser | null }) {
 }
 
 function NavLink({ href, label, active }: { href: string; label: string; active: boolean }) {
-  return <Link href={href} aria-current={active ? "page" : undefined} className={`flex h-16 items-center border-b-2 px-2 text-sm font-black ${active ? "border-bal text-bal" : "border-transparent text-muted hover:border-bal/30 hover:text-ink"}`}>{label}</Link>;
+  return <Link href={href} aria-current={active ? "page" : undefined} className={`rounded-lg px-3 py-2 text-sm font-bold ${active ? "bg-bal-soft text-bal" : "text-muted hover:bg-black/5 hover:text-ink"}`}>{label}</Link>;
 }
 
 function MobileNavLink({ href, label, icon, active, onClick }: { href: string; label: string; icon: React.ReactNode; active?: boolean; onClick: () => void }) {
