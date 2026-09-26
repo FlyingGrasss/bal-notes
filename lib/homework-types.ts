@@ -1,0 +1,21 @@
+export type HomeworkSubjectValue = "EDEBIYAT" | "MATEMATIK" | "FIZIK" | "KIMYA" | "BIYOLOJI" | "FELSEFE" | "TARIH";
+export type HomeworkWriterKindValue = "TEACHER" | "SMART_BOARD";
+
+export type HomeworkDto = {
+  id: string;
+  title: string;
+  description: string | null;
+  subject: HomeworkSubjectValue;
+  dueDate: string;
+  writer: { id: string; name: string; kind: HomeworkWriterKindValue };
+  updatedAt: string;
+};
+
+export type HomeworkWriterView = {
+  id: string;
+  name: string;
+  kind: HomeworkWriterKindValue;
+  fixedSubject: HomeworkSubjectValue | null;
+  isActive: boolean;
+  lastLoginAt: string | null;
+};

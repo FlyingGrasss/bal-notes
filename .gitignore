@@ -1,0 +1,30 @@
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+
+# next
+/.next/
+/out/
+
+# production
+/build
+
+# local env
+.env
+.env.local
+.env.*.local
+
+# Local database backups (never commit these)
+/db-backups/
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+pnpm-debug.log*
+*.tsbuildinfo
+next-env.d.ts
+
+# vercel
+.vercel
