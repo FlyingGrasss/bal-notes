@@ -1,13 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import { getSiteMode } from "@/lib/site";
 
 export async function proxy(request: NextRequest) {
+  const site = getSiteMode(request.nextUrl.hostname);
   const rewritePath = request.nextUrl.pathname === "/"
-    ? request.nextUrl.hostname === "notlar.balogrenci.org"
-      ? "/notlar"
-      : request.nextUrl.hostname === "odevler.balogrenci.org"
-        ? "/odevler"
-        : null
+    ? site === "homework" ? "/odevler" : "/notlar"
     : null;
   const rewriteUrl = rewritePath ? request.nextUrl.clone() : null;
   if (rewriteUrl && rewritePath) rewriteUrl.pathname = rewritePath;
