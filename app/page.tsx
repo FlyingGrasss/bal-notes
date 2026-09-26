@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Quote, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight, BookOpen, Bookmark, Quote, TrendingUp } from "lucide-react";
 import { getHomeData } from "@/lib/data";
 import { GRADE_OPTIONS } from "@/lib/constants";
 import { NoteCard } from "@/components/note-card";
@@ -32,7 +32,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <HomeSection eyebrow="Editör seçkisi" title="Önerilen notlar" icon={<Sparkles size={18} />} href="/notlar">
+      <HomeSection eyebrow="Editör seçkisi" title="Önerilen notlar" icon={<Bookmark size={18} />} href="/notlar">
         {recommended.length ? <div className="grid gap-4 lg:grid-cols-2">{recommended.map((note) => <NoteCard key={note.id} note={note} featured />)}</div> : <EmptyState title="Henüz önerilen not yok" description="İlk notlar onaylandığında burada görünecek." />}
       </HomeSection>
 

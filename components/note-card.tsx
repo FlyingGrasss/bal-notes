@@ -15,10 +15,10 @@ export function NoteCard({ note, featured = false }: { note: NoteCardData; featu
       <div className="flex gap-3 p-4 sm:p-5">
         <VoteButton noteId={note.id} initialCount={note._count.votes} />
         <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.1em]">
-            <span className="rounded-full bg-bal px-2.5 py-1 text-white">{GRADE_LABELS[note.gradeLevel]}</span>
-            <span className="rounded-full bg-bal-soft px-2.5 py-1 text-bal">{subject}</span>
-            {featured ? <span className="rounded-full bg-ink px-2.5 py-1 text-white">Önerilen</span> : null}
+          <div className="flex flex-wrap items-center gap-3 text-[10px] font-black uppercase tracking-[0.1em]">
+            <span className="border-l-2 border-bal pl-2 text-bal">{GRADE_LABELS[note.gradeLevel]}</span>
+            <span className="text-muted">{subject}</span>
+            {featured ? <span className="text-ink/55">Editör seçimi</span> : null}
           </div>
           <Link href={`/notlar/${note.id}`} className="mt-3 block">
             <h3 className="text-lg font-black leading-tight tracking-[-0.025em] text-ink group-hover:text-bal sm:text-xl">{note.title}</h3>

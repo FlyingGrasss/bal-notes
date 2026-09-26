@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { appUrl } from "@/lib/utils";
+
+const inter = Inter({ subsets: ["latin", "latin-ext"], display: "swap", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl()),
@@ -15,7 +18,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="tr">
-      <body className="antialiased">
+      <body className={`${inter.className} antialiased`}>
         <Providers>
           <SiteHeader />
           <main className="site-main">{children}</main>
