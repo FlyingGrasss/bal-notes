@@ -4,12 +4,19 @@ import { getSiteMode } from "@/lib/site";
 
 export async function proxy(request: NextRequest) {
   const site = getSiteMode(request.nextUrl.hostname);
-  const rewritePath = request.nextUrl.pathname === "/"
+  const pathname = request.nextUrl.pathname;
+  const blockedPrefixes = site === "homework" ? ["/notlar", "/sozler", "/paylas", "/profil"] : ["/odevler"];
+  const blocked = blockedPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+  const redirectUrl = blocked ? request.nextUrl.clone() : null;
+  if (redirectUrl) redirectUrl.pathname = site === "homework" ? "/odevler" : "/notlar";
+  const rewritePath = !redirectUrl && pathname === "/"
     ? site === "homework" ? "/odevler" : "/notlar"
     : null;
   const rewriteUrl = rewritePath ? request.nextUrl.clone() : null;
   if (rewriteUrl && rewritePath) rewriteUrl.pathname = rewritePath;
-  const responseForRequest = () => rewriteUrl
+  const responseForRequest = () => redirectUrl
+    ? NextResponse.redirect(redirectUrl)
+    : rewriteUrl
     ? NextResponse.rewrite(rewriteUrl, { request })
     : NextResponse.next({ request });
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
