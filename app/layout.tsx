@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { SiteHeader } from "@/components/site-header";
+import { HomeworkHeader, SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { appUrl, homeworkAppUrl } from "@/lib/utils";
 
@@ -75,9 +75,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className={`${inter.className} antialiased`}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteStructuredData) }} />
         <Providers>
-          <Suspense fallback={<div className="h-16" aria-hidden="true" />}><SiteHeader /></Suspense>
+          {isHomework ? <HomeworkHeader /> : <Suspense fallback={<div className="h-16" aria-hidden="true" />}><SiteHeader /></Suspense>}
           <main className="site-main">{children}</main>
-          <Suspense fallback={<div className="mt-20 min-h-32" aria-hidden="true" />}><SiteFooter /></Suspense>
+          <SiteFooter site={isHomework ? "homework" : "notes"} />
         </Providers>
       </body>
     </html>

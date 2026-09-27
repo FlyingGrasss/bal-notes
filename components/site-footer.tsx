@@ -1,8 +1,6 @@
-import { headers } from "next/headers";
-import { getSiteMode } from "@/lib/site";
+import type { SiteMode } from "@/lib/site";
 
-export async function SiteFooter() {
-  const site = getSiteMode((await headers()).get("host"));
+export function SiteFooter({ site }: { site: SiteMode }) {
   const appName = site === "homework" ? "BAL Ödevler" : "BAL Notes";
 
   return (

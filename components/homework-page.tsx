@@ -26,8 +26,8 @@ const SUBJECT_ICONS: Record<HomeworkSubjectValue, LucideIcon> = {
 export function HomeworkPublicPage({ homework }: { homework: HomeworkDto[] }) {
   return (
     <div className="space-y-8">
-      <div className="grid gap-4 lg:grid-cols-2">
-        {homework.length ? homework.map((item) => <HomeworkCard key={item.id} item={item} />) : <div className="paper-card p-8 text-sm text-muted lg:col-span-2">Henüz paylaşılmış ödev yok.</div>}
+      <div className="grid gap-4">
+        {homework.length ? homework.map((item) => <HomeworkCard key={item.id} item={item} />) : <div className="paper-card p-8 text-sm text-muted">Henüz paylaşılmış ödev yok.</div>}
       </div>
     </div>
   );
@@ -91,7 +91,7 @@ export function HomeworkWriterDashboard({ writer, homework }: { writer: Homework
 }
 
 function HomeworkSection({ title, description, items, onEdit, onDelete, empty }: { title: string; description: string; items: HomeworkDto[]; onEdit: (item: HomeworkDto) => void; onDelete: (item: HomeworkDto) => void; empty: string }) {
-  return <section><div className="mb-4"><h2 className="text-2xl font-black tracking-tight">{title}</h2><p className="mt-1 text-sm text-muted">{description}</p></div><div className="grid gap-4 lg:grid-cols-2">{items.length ? items.map((item) => <HomeworkCard key={item.id} item={item} manage onEdit={() => onEdit(item)} onDelete={() => onDelete(item)} />) : <div className="rounded-2xl border border-dashed border-line p-6 text-sm text-muted lg:col-span-2">{empty}</div>}</div></section>;
+  return <section><div className="mb-4"><h2 className="text-2xl font-black tracking-tight">{title}</h2><p className="mt-1 text-sm text-muted">{description}</p></div><div className="grid gap-4">{items.length ? items.map((item) => <HomeworkCard key={item.id} item={item} manage onEdit={() => onEdit(item)} onDelete={() => onDelete(item)} />) : <div className="rounded-2xl border border-dashed border-line p-6 text-sm text-muted">{empty}</div>}</div></section>;
 }
 
 function HomeworkCard({ item, manage = false, onEdit, onDelete }: { item: HomeworkDto; manage?: boolean; onEdit?: () => void; onDelete?: () => void }) {
