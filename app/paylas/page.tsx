@@ -16,7 +16,7 @@ async function SharePageContent() {
   return (
     <div className="container-shell py-10 sm:py-14">
       <div className="mx-auto max-w-3xl">
-        <div className="mb-7"><p className="eyebrow">Arşive katkı</p><h1 className="section-title mt-2 text-4xl">Ne paylaşmak istersin?</h1><p className="mt-3 max-w-2xl leading-7 text-muted">Bu sayfa not dosyası yüklemek veya bir öğretmen sözünü incelemeye göndermek içindir.</p></div>
+        <div className="mb-7"><p className="eyebrow">Arşive katkı</p><h1 className="section-title mt-2 text-4xl">Ne paylaşmak istersin?</h1><p className="mt-3 max-w-2xl leading-7 text-muted">Bu sayfa ders notu yüklemek veya öğretmenlerin sınavda çıkacağını söylediği konuları ve uyarıları incelemeye göndermek içindir.</p></div>
         <SubmissionForms subjects={subjects.map(({ id, name, gradeLevel }) => ({ id, name, gradeLevel }))} />
       </div>
     </div>

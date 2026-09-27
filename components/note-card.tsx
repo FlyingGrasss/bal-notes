@@ -7,9 +7,10 @@ import { formatRelativeDate } from "@/lib/utils";
 import { Avatar } from "@/components/avatar";
 import { VoteButton } from "@/components/vote-button";
 
-export function NoteCard({ note, featured = false }: { note: NoteCardData; featured?: boolean }) {
+export function NoteCard({ note, featured }: { note: NoteCardData; featured?: boolean }) {
   const subject = note.subject?.name || note.customSubject || "Diğer";
   const cover = note.assets[0];
+  const isRecommended = note.isRecommended ?? featured ?? false;
   return (
     <article className="paper-card note-card group overflow-hidden">
       <div className="flex gap-3 p-4 sm:p-5">
@@ -18,7 +19,7 @@ export function NoteCard({ note, featured = false }: { note: NoteCardData; featu
           <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.1em]">
             <span className="rounded-full bg-bal px-2.5 py-1 text-white">{GRADE_LABELS[note.gradeLevel]}</span>
             <span className="rounded-full bg-bal-soft px-2.5 py-1 text-bal">{subject}</span>
-            {featured ? <span className="rounded-full bg-ink px-2.5 py-1 text-white">Önerilen</span> : null}
+            {isRecommended ? <span className="rounded-full bg-ink px-2.5 py-1 text-white">Önerilen</span> : null}
           </div>
           <Link href={`/notlar/${note.id}`} className="mt-3 block">
             <h3 className="text-lg font-black leading-tight tracking-[-0.025em] text-ink group-hover:text-bal sm:text-xl">{note.title}</h3>

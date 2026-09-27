@@ -1,12 +1,14 @@
+import { Suspense } from "react";
 import { Avatar } from "@/components/avatar";
 import { ProfileDashboard } from "@/components/profile-dashboard";
+import { ProfileLoading } from "@/components/profile-loading";
 import { requireUser } from "@/lib/auth";
 import { getActiveSubjects, getProfileData } from "@/lib/data";
 
 export const metadata = { title: "Profilim", robots: { index: false, follow: false } };
 
 export default function ProfilePage() {
-  return <Suspense fallback={<div className="container-shell py-10"><div className="paper-card min-h-96 animate-pulse" /></div>}><ProfilePageContent /></Suspense>;
+  return <Suspense fallback={<ProfileLoading />}><ProfilePageContent /></Suspense>;
 }
 
 async function ProfilePageContent() {
@@ -25,4 +27,3 @@ async function ProfilePageContent() {
     </div>
   );
 }
-import { Suspense } from "react";

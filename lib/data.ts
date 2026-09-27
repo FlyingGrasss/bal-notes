@@ -59,13 +59,7 @@ export async function getHomeData() {
     }),
   ]);
 
-  const seen = new Set(recommended.map((note) => note.id));
-  const filled = [...recommended];
-  for (const note of popular) {
-    if (filled.length >= 6) break;
-    if (!seen.has(note.id)) filled.push(note);
-  }
-  return { recommended: filled, popular, recent, quotes };
+  return { recommended, popular, recent, quotes };
 }
 
 export async function getActiveSubjects(gradeLevel?: GradeLevel) {
