@@ -31,6 +31,7 @@ export const quoteInputSchema = z.object({
   quote: z.string().trim().min(5, "Söz en az 5 karakter olmalı.").max(280),
   context: z.string().trim().max(300).optional().default(""),
   gradeLevel: gradeSchema.optional().nullable(),
+  subjectId: z.string().trim().max(80).optional().nullable(),
 });
 
 export const subjectInputSchema = z.object({

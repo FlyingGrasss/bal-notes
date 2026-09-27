@@ -41,6 +41,8 @@ export const HOMEWORK_SUBJECT_OPTIONS: Array<{ value: HomeworkSubject; label: st
   { value: "BIYOLOJI", label: "Biyoloji" },
   { value: "FELSEFE", label: "Felsefe" },
   { value: "TARIH", label: "Tarih" },
+  { value: "COGRAFYA", label: "Coğrafya" },
+  { value: "DIN_KULTURU", label: "Din Kültürü" },
 ];
 
 export const HOMEWORK_SUBJECT_LABELS = Object.fromEntries(

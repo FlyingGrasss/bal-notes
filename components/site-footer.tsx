@@ -1,21 +1,27 @@
-import Image from "next/image";
 import Link from "next/link";
 import { headers } from "next/headers";
 import { getSiteMode } from "@/lib/site";
 
 export async function SiteFooter() {
   const site = getSiteMode((await headers()).get("host"));
+  const appName = site === "homework" ? "BAL Ödevler" : "BAL Notes";
   const links = site === "homework"
     ? [{ href: "/odevler", label: "Ödevler" }]
     : [{ href: "/notlar", label: "Notlar" }, { href: "/sozler", label: "Hoca Sözleri" }, { href: "/paylas", label: "İçerik Paylaş" }];
+
   return (
-    <footer className="mt-20 border-t border-black/8 bg-ink py-10 text-white sm:mt-28 sm:py-12">
-      <div className="container-shell flex flex-col justify-between gap-7 sm:flex-row sm:items-end">
-        <div className="flex items-center gap-3">
-          <Image src="/bal-logo.png" alt="" width={46} height={46} className="size-11 rounded-full bg-white object-contain" />
-          <div><p className="font-black">{site === "homework" ? "BAL Ödevler" : "BAL Notes"}</p><p className="mt-1 text-xs text-white/50">Bornova Anadolu Lisesi öğrencileri için.</p></div>
+    <footer className="mt-auto hidden bg-[#a21a2a] py-12 sm:block">
+      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 md:flex-row">
+        <div className="text-center md:text-left">
+          <p className="mb-1 text-xl font-bold text-white">{appName}</p>
+          <p className="text-sm font-medium text-white/85">Bornova Anadolu Lisesi öğrencileri için © 2026</p>
+          <p className="mt-3 text-xs text-white/85">BAL öğrencilerinin ortak arşivi.</p>
         </div>
-        <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-bold text-white/60">{links.map((link) => <Link key={link.href} href={link.href} className="hover:text-white">{link.label}</Link>)}</div>
+        <div className="flex flex-wrap items-center justify-center gap-8">
+          {links.map((link) => <Link key={link.href} href={link.href} className="text-sm font-bold tracking-wide text-white/80 transition hover:text-white">{link.label}</Link>)}
+          <a href="https://www.instagram.com/balogrenci/" target="_blank" rel="noopener noreferrer" className="text-sm font-bold tracking-wide text-white/80 transition hover:text-white">Instagram</a>
+          <a href="https://linktr.ee/baloder" target="_blank" rel="noopener noreferrer" className="text-sm font-bold tracking-wide text-white/80 transition hover:text-white">Linktree</a>
+        </div>
       </div>
     </footer>
   );

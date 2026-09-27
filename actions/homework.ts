@@ -1,7 +1,7 @@
 "use server";
 
 import QRCode from "qrcode";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { homeworkAppUrl } from "@/lib/utils";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
@@ -11,6 +11,7 @@ import { clearHomeworkLoginRateLimit, consumeHomeworkLoginAttempt, destroyHomewo
 import { dateOnlyToDate } from "@/lib/homework-display";
 import type { HomeworkSubjectValue } from "@/lib/homework-types";
 import type { ActionResult } from "@/actions/notes";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 type CredentialData = {
   writer: { id: string; name: string; kind: "TEACHER" | "SMART_BOARD"; fixedSubject: HomeworkSubjectValue | null };
@@ -24,9 +25,12 @@ function writerCredential(rawKey: string, writer: CredentialData["writer"]): Pro
 }
 
 function refreshHomework() {
-  revalidatePath("/odevler");
-  revalidatePath("/odevler/giris");
-  revalidatePath("/admin");
+  updateTag(CACHE_TAGS.homework);
+  revalidatePath("/", "page");
+  revalidatePath("/odevler", "page");
+  revalidatePath("/odevler/panel", "page");
+  revalidatePath("/odevler/giris", "page");
+  revalidatePath("/admin", "page");
 }
 
 async function canManageHomework(homeworkId: string) {
@@ -57,7 +61,8 @@ export async function loginHomeworkWriter(rawKey: string): Promise<ActionResult<
 
 export async function logoutHomeworkWriter(): Promise<ActionResult> {
   await destroyHomeworkSession();
-  revalidatePath("/odevler");
+  revalidatePath("/", "page");
+  revalidatePath("/odevler", "page");
   return { success: true, data: undefined };
 }
 

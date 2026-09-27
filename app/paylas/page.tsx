@@ -2,10 +2,13 @@ import { requireUser } from "@/lib/auth";
 import { getActiveSubjects } from "@/lib/data";
 import { SubmissionForms } from "@/components/submission-forms";
 
-export const dynamic = "force-dynamic";
 export const metadata = { title: "İçerik Paylaş" };
 
-export default async function SharePage() {
+export default function SharePage() {
+  return <Suspense fallback={<div className="container-shell py-10"><div className="paper-card min-h-96 animate-pulse" /></div>}><SharePageContent /></Suspense>;
+}
+
+async function SharePageContent() {
   await requireUser("/paylas");
   const subjects = await getActiveSubjects();
   return (
@@ -17,3 +20,4 @@ export default async function SharePage() {
     </div>
   );
 }
+import { Suspense } from "react";

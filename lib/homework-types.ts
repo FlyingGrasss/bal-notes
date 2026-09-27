@@ -1,4 +1,4 @@
-export type HomeworkSubjectValue = "EDEBIYAT" | "MATEMATIK" | "FIZIK" | "KIMYA" | "BIYOLOJI" | "FELSEFE" | "TARIH";
+export type HomeworkSubjectValue = "EDEBIYAT" | "MATEMATIK" | "FIZIK" | "KIMYA" | "BIYOLOJI" | "FELSEFE" | "TARIH" | "COGRAFYA" | "DIN_KULTURU";
 export type HomeworkWriterKindValue = "TEACHER" | "SMART_BOARD";
 
 export type HomeworkDto = {

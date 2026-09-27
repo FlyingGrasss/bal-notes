@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { Suspense } from "react";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { SiteHeader } from "@/components/site-header";
@@ -11,6 +13,7 @@ const siteDescription = isHomework
   ? "Bornova Anadolu Lisesi okul ödevleri."
   : "Bornova Anadolu Lisesi öğrencilerinin not paylaşım platformu.";
 const siteUrl = isHomework ? homeworkAppUrl() : appUrl();
+const inter = Inter({ subsets: ["latin"], display: "swap", preload: false });
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -22,11 +25,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="tr">
-      <body className="antialiased">
+      <body className={`${inter.className} antialiased`}>
         <Providers>
-          <SiteHeader />
+          <Suspense fallback={<div className="h-16" aria-hidden="true" />}><SiteHeader /></Suspense>
           <main className="site-main">{children}</main>
-          <SiteFooter />
+          <Suspense fallback={<div className="mt-20 min-h-32" aria-hidden="true" />}><SiteFooter /></Suspense>
         </Providers>
       </body>
     </html>

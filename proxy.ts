@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSiteMode } from "@/lib/site";
+import { HOMEWORK_WRITER_COOKIE } from "@/lib/constants";
 
 export async function proxy(request: NextRequest) {
   const site = getSiteMode(request.nextUrl.hostname);
@@ -9,13 +10,27 @@ export async function proxy(request: NextRequest) {
   const blocked = blockedPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
   const redirectUrl = blocked ? request.nextUrl.clone() : null;
   if (redirectUrl) redirectUrl.pathname = site === "homework" ? "/odevler" : "/notlar";
-  const rewritePath = !redirectUrl && pathname === "/"
-    ? site === "homework" ? "/odevler" : "/notlar"
+  const writerHome = site === "homework"
+    && (pathname === "/" || pathname === "/odevler")
+    && Boolean(request.cookies.get(HOMEWORK_WRITER_COOKIE)?.value);
+  const writerRedirect = writerHome ? request.nextUrl.clone() : null;
+  if (writerRedirect) writerRedirect.pathname = "/odevler/panel";
+  const filterRewrite = site === "notes"
+    && pathname === "/notlar"
+    && request.nextUrl.searchParams.size > 0;
+  const rewritePath = !redirectUrl && !writerRedirect
+    ? pathname === "/" && site === "homework"
+      ? "/odevler"
+      : filterRewrite
+        ? "/notlar/filtre"
+        : null
     : null;
   const rewriteUrl = rewritePath ? request.nextUrl.clone() : null;
   if (rewriteUrl && rewritePath) rewriteUrl.pathname = rewritePath;
   const responseForRequest = () => redirectUrl
     ? NextResponse.redirect(redirectUrl)
+    : writerRedirect
+    ? NextResponse.redirect(writerRedirect)
     : rewriteUrl
     ? NextResponse.rewrite(rewriteUrl, { request })
     : NextResponse.next({ request });

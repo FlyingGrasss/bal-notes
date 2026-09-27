@@ -41,6 +41,8 @@ enum HomeworkSubject {
   BIYOLOJI
   FELSEFE
   TARIH
+  COGRAFYA
+  DIN_KULTURU
 
   @@schema("balnotes")
 }
@@ -96,6 +98,7 @@ model Subject {
   updatedAt  DateTime   @updatedAt
 
   notes Note[]
+  teacherQuotes TeacherQuote[]
 
   @@unique([gradeLevel, slug])
   @@index([gradeLevel, isActive, sortOrder])
@@ -175,6 +178,8 @@ model TeacherQuote {
   quote           String
   context         String?
   gradeLevel      GradeLevel?
+  subjectId       String?
+  subject         Subject?         @relation(fields: [subjectId], references: [id], onDelete: SetNull)
   status          SubmissionStatus @default(PENDING)
   rejectionReason String?          @db.Text
   reviewedById    String?
@@ -184,6 +189,7 @@ model TeacherQuote {
   updatedAt       DateTime         @updatedAt
 
   @@index([status, publishedAt])
+  @@index([subjectId, status, publishedAt])
   @@index([authorId, status, updatedAt])
   @@map("teacher_quotes")
   @@schema("balnotes")

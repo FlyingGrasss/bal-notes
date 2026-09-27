@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen, Quote, Sparkles, TrendingUp } from "lucide-react";
 import { getHomeData } from "@/lib/data";
-import { GRADE_OPTIONS } from "@/lib/constants";
 import { NoteCard } from "@/components/note-card";
 import { EmptyState } from "@/components/empty-state";
 import { buttonStyles } from "@/components/ui/button";
-
-export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const { recommended, popular, recent, quotes } = await getHomeData();
@@ -17,26 +14,36 @@ export default async function HomePage() {
           <div>
             <p className="eyebrow text-[#ff9baa]">Bornova Anadolu Lisesi</p>
             <h1 className="display-title mt-4 max-w-4xl text-white">Notunu paylaş.<br /><span className="text-[#ff8999]">Sınıfını ileri taşı.</span></h1>
-            <p className="mt-6 max-w-2xl text-base font-medium leading-7 text-white/65 sm:text-lg">Hazırlıktan 12. sınıfa, öğrencilerin gerçek ders notları ve koridorda unutulmayan hoca sözleri tek yerde.</p>
+            <p className="mt-6 max-w-2xl text-base font-medium leading-7 text-white/65 sm:text-lg">Sınavlara hazırlanırken ihtiyacın olan ders notları ve öğretmenlerinin sınavda vurguladığı konular tek yerde.</p>
             <div className="mt-7 flex flex-wrap gap-3"><Link href="/notlar" className={buttonStyles({ size: "lg" })}><BookOpen size={19} /> Notları Keşfet</Link><Link href="/paylas" className={buttonStyles({ variant: "outline", size: "lg", className: "border-white/20 bg-white/10 text-white hover:border-white/40 hover:bg-white/15" })}>Not Paylaş <ArrowRight size={18} /></Link></div>
           </div>
           <div className="hero-note relative overflow-hidden p-6 text-white sm:p-7">
             <Quote className="absolute -right-3 -top-3 text-white/10" size={110} />
             <p className="relative text-[10px] font-black uppercase tracking-[0.2em] text-white/60">BAL’da bugün</p>
-            <blockquote className="relative mt-5 text-2xl font-black leading-tight">{quotes[0] ? `“${quotes[0].quote}”` : "İlk unutulmaz sözü sen paylaş."}</blockquote>
-            <p className="relative mt-4 text-sm font-bold text-white/70">{quotes[0] ? `— ${quotes[0].teacherName}` : "— BAL Notes"}</p>
+            <blockquote className="relative mt-5 text-2xl font-black leading-tight">{quotes[0] ? `“${quotes[0].quote}”` : "Sınava hazırlanırken aradığın notu bul."}</blockquote>
+            <p className="relative mt-4 text-sm font-bold text-white/70">{quotes[0] ? `— ${quotes[0].teacherName}` : "— Öğrencilerin ortak arşivi"}</p>
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-5 gap-2 sm:mt-5 sm:gap-3">
-          {GRADE_OPTIONS.map((grade) => <Link key={grade.value} href={`/notlar?sinif=${grade.value}`} className="paper-card grade-card flex flex-col items-center justify-center p-2 text-center"><span className="text-xl font-black text-bal sm:text-2xl">{grade.short}</span><span className="mt-1 text-[9px] font-bold uppercase tracking-wider text-muted sm:text-[11px]">{grade.label}</span></Link>)}
-        </div>
+      </section>
+
+      <section className="container-shell grid gap-4 py-8 sm:grid-cols-2 sm:py-10">
+        <article className="paper-card p-6 sm:p-8">
+          <p className="eyebrow">Sorun</p>
+          <h2 className="mt-3 text-2xl font-black tracking-tight">Sınava hazırlanırken doğru notu bulmak zor.</h2>
+          <p className="mt-3 leading-7 text-muted">Ders notları, sınavda çıkacağı söylenen konular ve öğretmenlerin önemli gördüğü noktalar mesaj gruplarında hızla kayboluyor.</p>
+        </article>
+        <article className="paper-card border-bal/20 bg-bal-soft/45 p-6 sm:p-8">
+          <p className="eyebrow">Çözüm</p>
+          <h2 className="mt-3 text-2xl font-black tracking-tight">BAL Notes, öğrencilerin sınav arşivi.</h2>
+          <p className="mt-3 leading-7 text-muted">Öğrenciler kendi notlarını, öğretmenlerinin notlarını ve sınavda çıkacağını söylediği konuları paylaşır. Herkes bunları ders ve sınıfa göre bulur; gönderiler yayınlanmadan önce incelenir.</p>
+        </article>
       </section>
 
       <HomeSection eyebrow="Editör seçkisi" title="Önerilen notlar" icon={<Sparkles size={18} />} href="/notlar">
         {recommended.length ? <div className="grid gap-4 lg:grid-cols-2">{recommended.map((note) => <NoteCard key={note.id} note={note} featured />)}</div> : <EmptyState title="Henüz önerilen not yok" description="İlk notlar onaylandığında burada görünecek." />}
       </HomeSection>
 
-      <HomeSection eyebrow="Topluluğun seçimi" title="En çok oy alanlar" icon={<TrendingUp size={18} />} href="/notlar?sirala=top">
+      <HomeSection eyebrow="Öğrencilerin seçimi" title="En çok oy alanlar" icon={<TrendingUp size={18} />} href="/notlar?sirala=top">
         {popular.length ? <div className="grid gap-4 lg:grid-cols-2">{popular.slice(0, 4).map((note) => <NoteCard key={note.id} note={note} />)}</div> : <EmptyState title="Oy bekleyen notlar" description="Onaylanan notlara oy vererek en faydalıları yukarı taşı." />}
       </HomeSection>
 

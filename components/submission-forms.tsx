@@ -24,7 +24,7 @@ export function SubmissionForms({ subjects }: { subjects: SubjectOption[] }) {
           <Tabs.Trigger value="quote" className="flex h-12 items-center justify-center gap-2 rounded-xl text-sm font-black text-muted data-[state=active]:bg-white data-[state=active]:text-bal data-[state=active]:shadow-sm"><Quote size={18} /> Öğretmen Sözü</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="note" className="p-5 sm:p-8"><NoteForm subjects={subjects} onCreated={(id, title) => setSharedNote({ id, title })} /></Tabs.Content>
-        <Tabs.Content value="quote" className="p-5 sm:p-8"><QuoteForm /></Tabs.Content>
+        <Tabs.Content value="quote" className="p-5 sm:p-8"><QuoteForm subjects={subjects} /></Tabs.Content>
       </Tabs.Root>
       {sharedNote ? <ShareDialog key={sharedNote.id} noteId={sharedNote.id} title={sharedNote.title} autoOpen /> : null}
     </>
@@ -99,30 +99,39 @@ function NoteForm({ subjects, onCreated }: { subjects: SubjectOption[]; onCreate
         <div><label className="label" htmlFor="grade">Sınıf</label><select className="field" id="grade" value={grade} onChange={(event) => { setGrade(event.target.value as GradeLevel); setSubject(""); }}>{GRADE_OPTIONS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
         <div><label className="label" htmlFor="subject">Ders</label><select className="field" id="subject" value={subject} required onChange={(event) => setSubject(event.target.value)}><option value="">Ders seç…</option>{filteredSubjects.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}<option value="OTHER">Diğer</option></select></div>
       </div>
-      {subject === "OTHER" ? <div><label className="label" htmlFor="customSubject">Ders adı</label><input className="field" id="customSubject" name="customSubject" minLength={2} maxLength={60} required placeholder="Paylaşılan listeye eklenmez" /></div> : null}
+      {subject === "OTHER" ? <div><label className="label" htmlFor="customSubject">Ders adı</label><input className="field" id="customSubject" name="customSubject" minLength={2} maxLength={60} required placeholder="Ders adını yazın" /></div> : null}
       <div><label className="label" htmlFor="files">Fotoğraflar veya PDF</label><label className="flex min-h-36 flex-col items-center justify-center rounded-2xl border-2 border-dashed border-bal/20 bg-bal-soft/35 p-5 text-center hover:border-bal/45"><FileImage className="text-bal" size={28} /><span className="mt-3 text-sm font-black">Dosyaları seç</span><span className="mt-1 text-xs leading-5 text-muted">PDF, JPG, PNG veya WebP · En fazla 10 dosya · Toplam 60 MB</span><input className="mt-4 block max-w-full text-xs" id="files" name="files" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple required /></label></div>
       <Button type="submit" size="lg" disabled={pending} className="w-full"><Send size={18} /> {pending ? progress || "Yükleniyor…" : "Notu Paylaş"}</Button>
     </form>
   );
 }
 
-function QuoteForm() {
+function QuoteForm({ subjects }: { subjects: SubjectOption[] }) {
+  const [grade, setGrade] = useState<GradeLevel | "">("");
+  const [subject, setSubject] = useState("");
   const [pending, setPending] = useState(false);
+  const availableSubjects = useMemo(() => subjects.filter((item) => !grade || item.gradeLevel === grade), [grade, subjects]);
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
     setPending(true);
-    const grade = String(data.get("gradeLevel") || "");
+    if (!subject) {
+      setPending(false);
+      return toast.error("Bir ders seçin.");
+    }
     const result = await createTeacherQuote({
       teacherName: String(data.get("teacherName") || ""),
       quote: String(data.get("quote") || ""),
       context: String(data.get("context") || ""),
-      gradeLevel: grade ? (grade as GradeLevel) : null,
+      gradeLevel: grade || null,
+      subjectId: subject,
     });
     setPending(false);
     if (!result.success) return toast.error(result.error);
     form.reset();
+    setGrade("");
+    setSubject("");
     toast.success("Söz incelemeye gönderildi.");
   }
   return (
@@ -131,7 +140,7 @@ function QuoteForm() {
       <div><label className="label" htmlFor="teacherName">Öğretmen</label><input className="field" id="teacherName" name="teacherName" required minLength={2} maxLength={80} placeholder="Örn. Fatih Hoca" /></div>
       <div><label className="label" htmlFor="quote">Söylediği söz</label><textarea className="field text-lg font-bold" id="quote" name="quote" required minLength={5} maxLength={280} placeholder="3.3 ezber olur" /></div>
       <div><label className="label" htmlFor="context">Bağlam <span className="normal-case font-medium tracking-normal text-muted">(isteğe bağlı)</span></label><input className="field" id="context" name="context" maxLength={300} placeholder="Örn. Trigonometri işlerken" /></div>
-      <div><label className="label" htmlFor="quoteGrade">Sınıf <span className="normal-case font-medium tracking-normal text-muted">(isteğe bağlı)</span></label><select className="field" id="quoteGrade" name="gradeLevel"><option value="">Belirtme</option>{GRADE_OPTIONS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
+      <div className="grid gap-4 sm:grid-cols-2"><div><label className="label" htmlFor="quoteGrade">Sınıf <span className="normal-case font-medium tracking-normal text-muted">(isteğe bağlı)</span></label><select className="field" id="quoteGrade" name="gradeLevel" value={grade} onChange={(event) => { setGrade(event.target.value as GradeLevel | ""); setSubject(""); }}><option value="">Tüm sınıflar</option>{GRADE_OPTIONS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div><div><label className="label" htmlFor="quoteSubject">Ders</label><select className="field" id="quoteSubject" name="subjectId" value={subject} onChange={(event) => setSubject(event.target.value)} required><option value="">Ders seç…</option>{availableSubjects.map((item) => <option key={item.id} value={item.id}>{item.name}{grade ? "" : ` · ${GRADE_OPTIONS.find((option) => option.value === item.gradeLevel)?.label}`}</option>)}</select></div></div>
       <Button type="submit" size="lg" disabled={pending} className="w-full"><Quote size={18} /> {pending ? "Gönderiliyor…" : "Sözü İncelemeye Gönder"}</Button>
     </form>
   );

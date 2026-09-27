@@ -1,18 +1,23 @@
 "use server";
 
 import { del } from "@vercel/blob";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import { db } from "@/lib/db";
 import { isAdminEmail, requireAdmin } from "@/lib/auth";
 import { banSchema, firstZodError, moderationSchema, subjectInputSchema } from "@/lib/validation";
 import { slugify } from "@/lib/utils";
 import type { ActionResult } from "@/actions/notes";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 function refreshContent() {
-  revalidatePath("/");
-  revalidatePath("/notlar");
-  revalidatePath("/sozler");
-  revalidatePath("/admin");
+  updateTag(CACHE_TAGS.notes);
+  updateTag(CACHE_TAGS.quotes);
+  updateTag(CACHE_TAGS.subjects);
+  revalidatePath("/", "page");
+  revalidatePath("/notlar", "page");
+  revalidatePath("/notlar/filtre", "page");
+  revalidatePath("/sozler", "page");
+  revalidatePath("/admin", "page");
 }
 
 export async function moderateNote(raw: unknown): Promise<ActionResult> {
@@ -37,7 +42,7 @@ export async function moderateNote(raw: unknown): Promise<ActionResult> {
     },
   });
   refreshContent();
-  revalidatePath(`/notlar/${note.id}`);
+  revalidatePath(`/notlar/${note.id}`, "page");
   return { success: true, data: undefined };
 }
 
@@ -96,6 +101,7 @@ export async function saveSubject(raw: unknown): Promise<ActionResult> {
   } catch {
     return { success: false, error: "Bu sınıfta aynı adlı bir ders zaten var." };
   }
+  updateTag(CACHE_TAGS.subjects);
   revalidatePath("/admin");
   revalidatePath("/paylas");
   revalidatePath("/notlar");
@@ -108,6 +114,7 @@ export async function toggleSubject(subjectId: string): Promise<ActionResult<{ a
   if (!subject) return { success: false, error: "Ders bulunamadı." };
   const active = !subject.isActive;
   await db.subject.update({ where: { id: subject.id }, data: { isActive: active } });
+  updateTag(CACHE_TAGS.subjects);
   revalidatePath("/admin");
   revalidatePath("/paylas");
   return { success: true, data: { active } };
@@ -118,6 +125,7 @@ export async function deleteSubject(subjectId: string): Promise<ActionResult> {
   const count = await db.note.count({ where: { subjectId } });
   if (count) return { success: false, error: "Bu ders mevcut notlarda kullanılıyor; silmek yerine pasifleştirin." };
   await db.subject.deleteMany({ where: { id: subjectId } });
+  updateTag(CACHE_TAGS.subjects);
   revalidatePath("/admin");
   revalidatePath("/paylas");
   return { success: true, data: undefined };

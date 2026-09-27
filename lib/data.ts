@@ -1,9 +1,11 @@
 import "server-only";
 
 import { cache } from "react";
+import { cacheLife, cacheTag } from "next/cache";
 import type { GradeLevel, Prisma, SubmissionStatus } from "@prisma/client";
 import { db } from "@/lib/db";
 import { getHomeworkAdminData } from "@/lib/homework-data";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 
 export const noteCardInclude = {
   author: { select: { id: true, name: true, picture: true } },
@@ -27,6 +29,9 @@ export const getNote = cache(async (id: string, currentUserId?: string) => {
 });
 
 export async function getHomeData() {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.notes, CACHE_TAGS.quotes);
   const [recommended, popular, recent, quotes] = await Promise.all([
     db.note.findMany({
       where: { status: "APPROVED", isRecommended: true },
@@ -63,6 +68,9 @@ export async function getHomeData() {
 }
 
 export async function getActiveSubjects(gradeLevel?: GradeLevel) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.subjects);
   return db.subject.findMany({
     where: { isActive: true, ...(gradeLevel ? { gradeLevel } : {}) },
     orderBy: [{ gradeLevel: "asc" }, { sortOrder: "asc" }, { name: "asc" }],
@@ -78,6 +86,9 @@ export type NoteFeedFilters = {
 };
 
 export async function getNoteFeed(filters: NoteFeedFilters) {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.notes, CACHE_TAGS.subjects);
   const page = Math.max(filters.page || 1, 1);
   const where: Prisma.NoteWhereInput = {
     status: "APPROVED",
@@ -116,15 +127,18 @@ export async function getProfileData(userId: string) {
       include: { ...noteCardInclude, assets: { orderBy: { sortOrder: "asc" } } },
       orderBy: { updatedAt: "desc" },
     }),
-    db.teacherQuote.findMany({ where: { authorId: userId }, orderBy: { updatedAt: "desc" } }),
+    db.teacherQuote.findMany({ where: { authorId: userId }, include: { subject: { select: { id: true, name: true, gradeLevel: true } } }, orderBy: { updatedAt: "desc" } }),
   ]);
   return { notes, quotes };
 }
 
 export async function getApprovedQuotes() {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.quotes, CACHE_TAGS.subjects);
   return db.teacherQuote.findMany({
     where: { status: "APPROVED" },
-    include: { author: { select: { name: true } } },
+    include: { author: { select: { name: true } }, subject: { select: { name: true } } },
     orderBy: { publishedAt: "desc" },
   });
 }
@@ -139,7 +153,7 @@ export async function getAdminData(status: SubmissionStatus = "PENDING") {
     }),
     db.teacherQuote.findMany({
       where: { status },
-      include: { author: { select: { id: true, name: true, email: true } } },
+      include: { author: { select: { id: true, name: true, email: true } }, subject: { select: { name: true } } },
       orderBy: { updatedAt: "asc" },
       take: 100,
     }),

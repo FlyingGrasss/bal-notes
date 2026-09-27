@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,8 +12,6 @@ import { Avatar } from "@/components/avatar";
 import { VoteButton } from "@/components/vote-button";
 import { ShareDialog } from "@/components/share-dialog";
 
-export const dynamic = "force-dynamic";
-
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
   const note = await getNote(id);
@@ -21,7 +20,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: note.title, description, openGraph: { title: note.title, description, url: appUrl(`/notlar/${note.id}`) } };
 }
 
-export default async function NoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default function NoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  return <Suspense fallback={<div className="container-shell py-10"><div className="paper-card min-h-96 animate-pulse" /></div>}><NoteDetailContent params={params} /></Suspense>;
+}
+
+async function NoteDetailContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const user = await getCurrentUser();
   const note = await getNote(id, user?.id);

@@ -1,6 +1,8 @@
 import "server-only";
 
+import { cacheLife, cacheTag } from "next/cache";
 import { db } from "@/lib/db";
+import { CACHE_TAGS } from "@/lib/cache-tags";
 import { getCurrentHomeworkWriter, type HomeworkWriterDto } from "@/lib/homework-auth";
 import { formatHomeworkDate } from "@/lib/homework-display";
 import type { HomeworkDto } from "@/lib/homework-types";
@@ -9,7 +11,21 @@ function toDateOnly(value: Date) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(value);
 }
 
+function sortHomeworkByDueDate<T extends { dueDate: string; updatedAt: string }>(items: T[]) {
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
+  return items.sort((left, right) => {
+    const leftPast = left.dueDate < today;
+    const rightPast = right.dueDate < today;
+    if (leftPast !== rightPast) return leftPast ? 1 : -1;
+    if (leftPast) return right.dueDate.localeCompare(left.dueDate) || right.updatedAt.localeCompare(left.updatedAt);
+    return left.dueDate.localeCompare(right.dueDate) || right.updatedAt.localeCompare(left.updatedAt);
+  });
+}
+
 export async function getPublicHomework() {
+  "use cache";
+  cacheLife("max");
+  cacheTag(CACHE_TAGS.homework);
   const homework = await db.homework.findMany({
     include: { writer: { select: { id: true, name: true, kind: true } } },
     orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
@@ -23,22 +39,15 @@ export async function getPublicHomework() {
     writer: item.writer,
     updatedAt: item.updatedAt.toISOString(),
   }));
-  const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
-  return mapped.sort((left, right) => {
-    const leftPast = left.dueDate < today;
-    const rightPast = right.dueDate < today;
-    if (leftPast !== rightPast) return leftPast ? 1 : -1;
-    if (leftPast) return right.dueDate.localeCompare(left.dueDate) || right.updatedAt.localeCompare(left.updatedAt);
-    return left.dueDate.localeCompare(right.dueDate) || right.updatedAt.localeCompare(left.updatedAt);
-  });
+  return sortHomeworkByDueDate(mapped);
 }
 
-export async function getHomeworkPageData() {
+export async function getHomeworkWriterPageData() {
   const [homework, writer] = await Promise.all([getPublicHomework(), getCurrentHomeworkWriter()]);
   const ownHomework = writer
     ? homework.filter((item) => item.writer.id === writer.id)
     : [];
-  return { homework, writer, ownHomework };
+  return { homework: ownHomework, writer };
 }
 
 export async function getHomeworkAdminData() {
@@ -55,7 +64,7 @@ export async function getHomeworkAdminData() {
   ]);
   return {
     writers: writers.map((writer) => ({ ...writer, lastLoginAt: writer.lastLoginAt?.toISOString() ?? null, createdAt: writer.createdAt.toISOString() })),
-    homework: homework.map((item) => ({ ...item, dueDate: toDateOnly(item.dueDate), updatedAt: item.updatedAt.toISOString() })),
+    homework: sortHomeworkByDueDate(homework.map((item) => ({ ...item, dueDate: toDateOnly(item.dueDate), updatedAt: item.updatedAt.toISOString() }))),
   };
 }
 
