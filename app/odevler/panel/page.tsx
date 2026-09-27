@@ -12,7 +12,7 @@ export default function HomeworkPanelPage() {
 
 async function HomeworkPanelContent() {
   const writer = await getCurrentHomeworkWriter();
-  if (!writer) redirect("/odevler/giris");
+  if (!writer) redirect("/login");
   const data = await getHomeworkWriterPageData();
   return <div className="container-shell py-10 sm:py-14"><HomeworkWriterDashboard writer={writer} homework={data.homework} /></div>;
 }

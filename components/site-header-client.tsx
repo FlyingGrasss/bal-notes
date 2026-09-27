@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { BookOpen, Home, Menu, Plus, Quote, Shield, UserRound, X } from "lucide-react";
 import { Avatar } from "@/components/avatar";
 import { buttonStyles } from "@/components/ui/button";
@@ -23,59 +23,43 @@ const notesLinks = [
 export function SiteHeaderClient({ user, site }: { user: HeaderUser | null; site: SiteMode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [visible, setVisible] = useState(true);
-  const lastScrollY = useRef(0);
-  const isNotesHome = false;
   const siteName = site === "homework" ? "BAL Ödevler" : "BAL Notes";
-
-  useEffect(() => {
-    const onScroll = () => {
-      const current = window.scrollY;
-      const delta = current - lastScrollY.current;
-      if (current < 48 || delta < -6) setVisible(true);
-      else if (current > 112 && delta > 6) { setVisible(false); setMenuOpen(false); }
-      lastScrollY.current = current;
-    };
-    lastScrollY.current = window.scrollY;
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const active = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <header className={`site-header fixed left-0 right-0 top-0 z-50 flex h-16 transition-transform duration-300 ease-out ${visible ? "translate-y-0" : "-translate-y-full"} ${isNotesHome ? "border-b border-white/10 bg-[#171717]/95 shadow-2xl shadow-black/20 backdrop-blur-xl" : "border-b border-gray-100 bg-white/95 shadow-md backdrop-blur-xl"}`}>
+    <header className="site-header fixed left-0 right-0 top-0 z-50 flex h-16 border-b border-gray-100 bg-white/95 shadow-md backdrop-blur-xl">
       <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
         <div className="flex h-full items-center justify-between">
           <Link href="/" className="flex items-center gap-2" aria-label={`${siteName} ana sayfa`} onClick={() => setMenuOpen(false)}>
             <Image src="/bal-logo.png" alt="Bornova Anadolu Lisesi" width={40} height={40} priority className="size-10 rounded-full object-contain" />
-            <span className={`whitespace-nowrap text-sm font-bold tracking-tight sm:text-xl ${isNotesHome ? "text-white" : "text-ink"}`}>{siteName}</span>
+            <span className="whitespace-nowrap text-sm font-bold tracking-tight text-ink sm:text-xl">{siteName}</span>
           </Link>
 
           {site === "notes" ? <nav className="hidden items-center gap-7 lg:flex" aria-label="Ana menü">
-            <HeaderLink href="/" label="Ana Sayfa" active={pathname === "/"} dark={isNotesHome} />
-            {notesLinks.map((link) => <HeaderLink key={link.href} href={link.href} label={link.label} active={active(link.href)} dark={isNotesHome} />)}
+            <HeaderLink href="/" label="Ana Sayfa" active={pathname === "/"} dark={false} />
+            {notesLinks.map((link) => <HeaderLink key={link.href} href={link.href} label={link.label} active={active(link.href)} dark={false} />)}
           </nav> : <span aria-hidden="true" />}
 
           <div className="flex items-center gap-4">
             {user ? <div className="flex items-center gap-3">
               {site === "notes" ? <Link href="/paylas" className={`${buttonStyles({ size: "sm" })} hidden sm:inline-flex`}><Plus size={16} /> Paylaş</Link> : null}
-              {user.isAdmin ? <Link href="/admin" aria-label="Yönetim" className={`hidden size-8 items-center justify-center rounded-full sm:flex ${isNotesHome ? "bg-white/10 text-white/70 hover:bg-white/20" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}><Shield size={16} /></Link> : null}
+              {user.isAdmin ? <Link href="/admin" aria-label="Yönetim" className="hidden size-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 sm:flex"><Shield size={16} /></Link> : null}
               <Link href="/profil" aria-label="Profil"><Avatar name={user.name} picture={user.picture} className="size-8" /></Link>
             </div> : site === "notes" ? <Link href="/auth/bal-id" className={`${buttonStyles({ size: "sm" })} hidden sm:inline-flex`}>BAL ID ile Giriş</Link> : null}
-            {site === "notes" ? <button type="button" onClick={() => { setVisible(true); setMenuOpen((open) => !open); }} className={`p-2 lg:hidden ${isNotesHome ? "text-white" : "text-ink"}`} aria-label={menuOpen ? "Menüyü kapat" : "Menüyü aç"} aria-expanded={menuOpen} aria-controls="site-mobile-navigation">
+            {site === "notes" ? <button type="button" onClick={() => setMenuOpen((open) => !open)} className="p-2 text-ink lg:hidden" aria-label={menuOpen ? "Menüyü kapat" : "Menüyü aç"} aria-expanded={menuOpen} aria-controls="site-mobile-navigation">
               {menuOpen ? <X size={24} /> : <Menu size={24} />}
             </button> : null}
           </div>
         </div>
       </div>
 
-      {menuOpen ? <div id="site-mobile-navigation" className={`absolute left-0 right-0 top-16 border-t shadow-xl lg:hidden ${isNotesHome ? "border-white/10 bg-[#171717] text-white" : "border-gray-100 bg-white"}`}>
+      {menuOpen ? <div id="site-mobile-navigation" className="absolute left-0 right-0 top-16 border-t border-gray-100 bg-white shadow-xl lg:hidden">
         <nav className="flex flex-col gap-2 p-4" aria-label="Mobil menü">
-          {site === "notes" ? <><MobileLink href="/" label="Ana Sayfa" icon={<Home size={18} />} active={pathname === "/"} dark={isNotesHome} onClick={() => setMenuOpen(false)} />{notesLinks.map((link) => <MobileLink key={link.href} href={link.href} label={link.label} icon={<link.icon size={18} />} active={active(link.href)} dark={isNotesHome} onClick={() => setMenuOpen(false)} />)}</> : null}
-          {site === "notes" && user ? <MobileLink href="/paylas" label="Paylaş" icon={<Plus size={18} />} active={pathname === "/paylas"} dark={isNotesHome} onClick={() => setMenuOpen(false)} /> : null}
-          {user?.isAdmin ? <MobileLink href="/admin" label="Yönetim" icon={<Shield size={18} />} active={active("/admin")} dark={isNotesHome} onClick={() => setMenuOpen(false)} /> : null}
-          {user ? <MobileLink href="/profil" label="Profilim" icon={<UserRound size={18} />} active={active("/profil")} dark={isNotesHome} onClick={() => setMenuOpen(false)} /> : site === "notes" ? <MobileLink href="/auth/bal-id" label="BAL ID ile Giriş" icon={<UserRound size={18} />} dark={isNotesHome} onClick={() => setMenuOpen(false)} /> : null}
+          {site === "notes" ? <><MobileLink href="/" label="Ana Sayfa" icon={<Home size={18} />} active={pathname === "/"} dark={false} onClick={() => setMenuOpen(false)} />{notesLinks.map((link) => <MobileLink key={link.href} href={link.href} label={link.label} icon={<link.icon size={18} />} active={active(link.href)} dark={false} onClick={() => setMenuOpen(false)} />)}</> : null}
+          {site === "notes" && user ? <MobileLink href="/paylas" label="Paylaş" icon={<Plus size={18} />} active={pathname === "/paylas"} dark={false} onClick={() => setMenuOpen(false)} /> : null}
+          {user?.isAdmin ? <MobileLink href="/admin" label="Yönetim" icon={<Shield size={18} />} active={active("/admin")} dark={false} onClick={() => setMenuOpen(false)} /> : null}
+          {user ? <MobileLink href="/profil" label="Profilim" icon={<UserRound size={18} />} active={active("/profil")} dark={false} onClick={() => setMenuOpen(false)} /> : site === "notes" ? <MobileLink href="/auth/bal-id" label="BAL ID ile Giriş" icon={<UserRound size={18} />} dark={false} onClick={() => setMenuOpen(false)} /> : null}
         </nav>
       </div> : null}
     </header>

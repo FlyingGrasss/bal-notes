@@ -1,4 +1,5 @@
 export function dateOnlyToDate(value: string) {
+  if (!value) return null;
   return new Date(`${value}T00:00:00+03:00`);
 }
 
@@ -13,7 +14,8 @@ export function formatHomeworkDate(value: Date | string) {
 
 export type HomeworkDateStatus = "overdue" | "today" | "upcoming";
 
-export function getHomeworkDateStatus(value: Date | string, now = new Date()): HomeworkDateStatus {
+export function getHomeworkDateStatus(value: Date | string | null, now = new Date()): HomeworkDateStatus | null {
+  if (!value) return null;
   const dueDate = typeof value === "string" ? value : new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(value);
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(now);
   if (dueDate < today) return "overdue";

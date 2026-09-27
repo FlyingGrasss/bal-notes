@@ -1,0 +1,5 @@
+ALTER TABLE "homework" ADD COLUMN "dueText" TEXT NOT NULL DEFAULT 'Belirtilmedi';
+
+ALTER TABLE "homework" ALTER COLUMN "dueText" DROP DEFAULT;
+
+ALTER TABLE "homework" ALTER COLUMN "dueDate" DROP NOT NULL;

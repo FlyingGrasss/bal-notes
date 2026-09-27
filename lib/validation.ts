@@ -57,12 +57,18 @@ export const homeworkInputSchema = z.object({
   title: z.string().trim().min(2, "Ödev başlığı en az 2 karakter olmalı.").max(120),
   description: z.string().trim().max(2000, "Açıklama en fazla 2000 karakter olabilir.").optional().default(""),
   subject: z.enum(HomeworkSubject),
-  dueDate: z.string().trim().regex(/^\d{4}-\d{2}-\d{2}$/, "Teslim tarihi seçin."),
+  dueText: z.string().trim().min(1, "Teslim bilgisini yazın.").max(160, "Teslim bilgisi en fazla 160 karakter olabilir."),
+  dueDate: z.string().trim().max(10).optional().default(""),
 }).superRefine((value, ctx) => {
+  if (!value.dueDate) return;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value.dueDate)) {
+    ctx.addIssue({ code: "custom", path: ["dueDate"], message: "Sıralama tarihi geçerli değil." });
+    return;
+  }
   const [year, month, day] = value.dueDate.split("-").map(Number);
   const parsed = new Date(Date.UTC(year, month - 1, day));
   if (parsed.getUTCFullYear() !== year || parsed.getUTCMonth() !== month - 1 || parsed.getUTCDate() !== day) {
-    ctx.addIssue({ code: "custom", path: ["dueDate"], message: "Geçerli bir teslim tarihi seçin." });
+    ctx.addIssue({ code: "custom", path: ["dueDate"], message: "Sıralama tarihi geçerli değil." });
   }
 });
 

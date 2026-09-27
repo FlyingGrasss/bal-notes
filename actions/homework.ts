@@ -20,7 +20,7 @@ type CredentialData = {
 };
 
 function writerCredential(rawKey: string, writer: CredentialData["writer"]): Promise<CredentialData> {
-  const loginUrl = homeworkAppUrl(`/odevler/giris?anahtar=${encodeURIComponent(rawKey)}`);
+  const loginUrl = homeworkAppUrl(`/login?anahtar=${encodeURIComponent(rawKey)}`);
   return QRCode.toDataURL(loginUrl, { margin: 1, width: 320 }).then((qrDataUrl) => ({ writer, loginUrl, qrDataUrl }));
 }
 
@@ -29,7 +29,7 @@ function refreshHomework() {
   revalidatePath("/", "page");
   revalidatePath("/odevler", "page");
   revalidatePath("/odevler/panel", "page");
-  revalidatePath("/odevler/giris", "page");
+  revalidatePath("/login", "page");
   revalidatePath("/admin", "page");
 }
 
@@ -80,6 +80,7 @@ export async function createHomework(rawInput: HomeworkInput): Promise<ActionRes
       subject: parsed.data.subject,
       title: parsed.data.title,
       description: parsed.data.description || null,
+      dueText: parsed.data.dueText,
       dueDate: dateOnlyToDate(parsed.data.dueDate),
     },
     select: { id: true },
@@ -98,7 +99,7 @@ export async function updateHomework(homeworkId: string, rawInput: HomeworkInput
   }
   await db.homework.update({
     where: { id: homeworkId },
-    data: { subject: parsed.data.subject, title: parsed.data.title, description: parsed.data.description || null, dueDate: dateOnlyToDate(parsed.data.dueDate) },
+    data: { subject: parsed.data.subject, title: parsed.data.title, description: parsed.data.description || null, dueText: parsed.data.dueText, dueDate: dateOnlyToDate(parsed.data.dueDate) },
   });
   refreshHomework();
   return { success: true, data: undefined };

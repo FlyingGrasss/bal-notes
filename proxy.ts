@@ -6,7 +6,7 @@ import { HOMEWORK_WRITER_COOKIE } from "@/lib/constants";
 export async function proxy(request: NextRequest) {
   const site = getSiteMode(request.nextUrl.hostname);
   const pathname = request.nextUrl.pathname;
-  const blockedPrefixes = site === "homework" ? ["/notlar", "/sozler", "/paylas", "/profil"] : ["/odevler"];
+  const blockedPrefixes = site === "homework" ? ["/notlar", "/sozler", "/paylas", "/profil"] : ["/odevler", "/login"];
   const blocked = blockedPrefixes.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
   const redirectUrl = blocked ? request.nextUrl.clone() : null;
   if (redirectUrl) redirectUrl.pathname = site === "homework" ? "/odevler" : "/notlar";

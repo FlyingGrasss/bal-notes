@@ -236,7 +236,8 @@ model Homework {
   subject     HomeworkSubject
   title       String
   description String?        @db.Text
-  dueDate     DateTime       @db.Date
+  dueText     String
+  dueDate     DateTime?      @db.Date
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 

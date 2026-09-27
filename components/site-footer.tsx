@@ -1,27 +1,18 @@
-import Link from "next/link";
 import { headers } from "next/headers";
 import { getSiteMode } from "@/lib/site";
 
 export async function SiteFooter() {
   const site = getSiteMode((await headers()).get("host"));
   const appName = site === "homework" ? "BAL Ödevler" : "BAL Notes";
-  const links = site === "homework"
-    ? [{ href: "/odevler", label: "Ödevler" }]
-    : [{ href: "/notlar", label: "Notlar" }, { href: "/sozler", label: "Hoca Sözleri" }, { href: "/paylas", label: "İçerik Paylaş" }];
 
   return (
-    <footer className="mt-auto hidden bg-[#a21a2a] py-12 sm:block">
-      <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-8 px-6 md:flex-row">
-        <div className="text-center md:text-left">
-          <p className="mb-1 text-xl font-bold text-white">{appName}</p>
-          <p className="text-sm font-medium text-white/85">Bornova Anadolu Lisesi öğrencileri için © 2026</p>
-          <p className="mt-3 text-xs text-white/85">BAL öğrencilerinin ortak arşivi.</p>
+    <footer className="mt-20 border-t border-white/10 bg-[#171717] py-10 text-white sm:py-12">
+      <div className="mx-auto flex max-w-7xl flex-col gap-8 px-5 sm:px-6 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="text-xl font-black tracking-tight">{appName}</p>
+          <p className="mt-2 text-sm font-medium text-white/55">Bornova Anadolu Lisesi öğrencileri için ortak arşiv.</p>
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-8">
-          {links.map((link) => <Link key={link.href} href={link.href} className="text-sm font-bold tracking-wide text-white/80 transition hover:text-white">{link.label}</Link>)}
-          <a href="https://www.instagram.com/balogrenci/" target="_blank" rel="noopener noreferrer" className="text-sm font-bold tracking-wide text-white/80 transition hover:text-white">Instagram</a>
-          <a href="https://linktr.ee/baloder" target="_blank" rel="noopener noreferrer" className="text-sm font-bold tracking-wide text-white/80 transition hover:text-white">Linktree</a>
-        </div>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-white/45">Made by <a href="https://www.instagram.com/emre.bozqurt/" target="_blank" rel="noopener noreferrer" className="text-white transition hover:text-[#ff6b79]">Emre Bozkurt</a></p>
       </div>
     </footer>
   );

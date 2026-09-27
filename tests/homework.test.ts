@@ -4,7 +4,7 @@ import { dateOnlyToDate, formatHomeworkDate, getHomeworkDateStatus } from "../li
 import { createHomeworkToken, hashHomeworkToken, hashesMatch } from "../lib/homework-security";
 
 describe("homework validation", () => {
-  const base = { title: "Türev tekrar ödevi", description: "", subject: "MATEMATIK" as const, dueDate: "2026-10-04" };
+  const base = { title: "Türev tekrar ödevi", description: "", subject: "MATEMATIK" as const, dueText: "ilk derse", dueDate: "2026-10-04" };
 
   it("requires a valid date-only due date and homework subject", () => {
     expect(homeworkInputSchema.safeParse(base).success).toBe(true);
@@ -32,7 +32,7 @@ describe("homework credential boundaries", () => {
 
   it("keeps date-only homework on the Istanbul calendar date", () => {
     const date = dateOnlyToDate("2026-10-04");
-    expect(formatHomeworkDate(date)).toContain("4 Ekim 2026");
+    expect(formatHomeworkDate(date!)).toContain("4 Ekim 2026");
     expect(getHomeworkDateStatus("2026-10-03", new Date("2026-10-04T12:00:00Z"))).toBe("overdue");
     expect(getHomeworkDateStatus("2026-10-04", new Date("2026-10-04T12:00:00Z"))).toBe("today");
     expect(getHomeworkDateStatus("2026-10-05", new Date("2026-10-04T12:00:00Z"))).toBe("upcoming");
