@@ -4,7 +4,7 @@ import { getActiveSubjects, getNoteFeed } from "@/lib/data";
 import { GRADE_OPTIONS } from "@/lib/constants";
 import { NotesArchive, type NotesArchiveParams } from "@/components/notes-archive";
 
-export const metadata = { title: "Notlarda ara" };
+export const metadata = { title: "Notlarda ara", robots: { index: false, follow: false } };
 
 export default function FilteredNotesPage({ searchParams }: { searchParams: Promise<NotesArchiveParams> }) {
   return <Suspense fallback={<div className="container-shell py-10 sm:py-14"><div className="paper-card min-h-96 animate-pulse" /></div>}><FilteredNotesContent searchParams={searchParams} /></Suspense>;

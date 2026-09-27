@@ -17,7 +17,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const note = await getNote(id);
   if (!note) return { title: "Not bulunamadı" };
   const description = note.description || `${GRADE_LABELS[note.gradeLevel]} ${note.subject?.name || note.customSubject || "ders"} notu`;
-  return { title: note.title, description, openGraph: { title: note.title, description, url: appUrl(`/notlar/${note.id}`) } };
+  const canonical = appUrl(`/notlar/${note.id}`);
+  return { title: note.title, description, alternates: { canonical }, openGraph: { title: note.title, description, url: canonical, type: "article" } };
 }
 
 export default function NoteDetailPage({ params }: { params: Promise<{ id: string }> }) {

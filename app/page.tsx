@@ -5,6 +5,11 @@ import { NoteCard } from "@/components/note-card";
 import { EmptyState } from "@/components/empty-state";
 import { buttonStyles } from "@/components/ui/button";
 
+export const metadata = {
+  title: "Sınava hazırlık notları",
+  description: "BAL öğrencilerinin ders notlarını ve sınavda çıkacağı söylenen konuları paylaştığı arşiv.",
+};
+
 export default async function HomePage() {
   const { recommended, popular, recent, quotes } = await getHomeData();
   return (

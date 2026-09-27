@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { ShieldAlert } from "lucide-react";
 import { buttonStyles } from "@/components/ui/button";
 
+export const metadata = { title: "Giriş hatası", robots: { index: false, follow: false } };
+
 const messages: Record<string, string> = {
   yapilandirma: "BAL ID bağlantısı henüz yapılandırılmamış.",
   "gecersiz-istek": "Giriş isteği doğrulanamadı. Lütfen yeniden deneyin.",

@@ -3,7 +3,7 @@ import { ProfileDashboard } from "@/components/profile-dashboard";
 import { requireUser } from "@/lib/auth";
 import { getActiveSubjects, getProfileData } from "@/lib/data";
 
-export const metadata = { title: "Profilim" };
+export const metadata = { title: "Profilim", robots: { index: false, follow: false } };
 
 export default function ProfilePage() {
   return <Suspense fallback={<div className="container-shell py-10"><div className="paper-card min-h-96 animate-pulse" /></div>}><ProfilePageContent /></Suspense>;

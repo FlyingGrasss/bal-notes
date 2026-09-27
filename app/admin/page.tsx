@@ -4,7 +4,7 @@ import { AdminDashboard } from "@/components/admin-dashboard";
 import { requireAdmin } from "@/lib/auth";
 import { getAdminData } from "@/lib/data";
 
-export const metadata = { title: "Yönetim" };
+export const metadata = { title: "Yönetim", robots: { index: false, follow: false } };
 
 export default function AdminPage({ searchParams }: { searchParams: Promise<{ durum?: string }> }) {
   return <Suspense fallback={<div className="container-shell py-10"><div className="paper-card min-h-96 animate-pulse" /></div>}><AdminPageContent searchParams={searchParams} /></Suspense>;

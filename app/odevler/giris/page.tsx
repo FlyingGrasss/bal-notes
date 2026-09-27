@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { Suspense } from "react";
+import Link from "next/link";
 import { HomeworkLoginForm } from "@/components/homework-login-form";
 import { buttonStyles } from "@/components/ui/button";
 
-export const metadata = { title: "Ödev yazarı girişi" };
+export const metadata = { title: "Ödev yazarı girişi", robots: { index: false, follow: false } };
 
 export default function HomeworkLoginPage({ searchParams }: { searchParams: Promise<{ anahtar?: string }> }) {
   return <Suspense fallback={<div className="container-shell py-10"><div className="paper-card mx-auto min-h-96 max-w-xl animate-pulse" /></div>}><HomeworkLoginContent searchParams={searchParams} /></Suspense>;

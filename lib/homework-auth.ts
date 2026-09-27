@@ -20,7 +20,9 @@ export function homeworkWriterCookieOptions() {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax" as const,
-    path: "/odevler",
+    // The public hostname rewrites \`/\` to \`/odevler\`. The cookie must reach
+    // \`/\` as well so the proxy can send logged-in writers straight to panel.
+    path: "/",
     maxAge: HOMEWORK_WRITER_SESSION_DAYS * 24 * 60 * 60,
   };
 }

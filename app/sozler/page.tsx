@@ -5,8 +5,9 @@ import { GRADE_LABELS } from "@/lib/constants";
 import { formatRelativeDate } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { buttonStyles } from "@/components/ui/button";
+import { appUrl } from "@/lib/utils";
 
-export const metadata = { title: "Hoca Sözleri", description: "BAL koridorlarında unutulmayan öğretmen sözleri." };
+export const metadata = { title: "Hoca sözleri", description: "BAL öğrencilerinin sınavlarda ve derslerde duyduğu unutulmayan öğretmen sözleri.", alternates: { canonical: appUrl("/sozler") } };
 
 export default async function QuotesPage() {
   const quotes = await getApprovedQuotes();
