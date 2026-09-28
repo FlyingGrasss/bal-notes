@@ -58,7 +58,7 @@ export const homeworkInputSchema = z.object({
   title: z.string().trim().min(2, "Ödev başlığı en az 2 karakter olmalı.").max(120),
   description: z.string().trim().max(2000, "Açıklama en fazla 2000 karakter olabilir.").optional().default(""),
   subject: z.enum(HomeworkSubject),
-  dueText: z.string().trim().min(1, "Teslim bilgisini yazın.").max(160, "Teslim bilgisi en fazla 160 karakter olabilir."),
+  dueText: z.string().trim().max(160, "Teslim bilgisi en fazla 160 karakter olabilir.").optional().default(""),
   dueDate: z.string().trim().max(10).optional().default(""),
 }).superRefine((value, ctx) => {
   if (!value.dueDate) return;
