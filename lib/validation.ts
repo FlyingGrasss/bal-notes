@@ -60,6 +60,7 @@ export const homeworkInputSchema = z.object({
   subject: z.enum(HomeworkSubject),
   dueText: z.string().trim().max(160, "Teslim bilgisi en fazla 160 karakter olabilir.").optional().default(""),
   dueDate: z.string().trim().max(10).optional().default(""),
+  isPast: z.boolean().optional().default(false),
 }).superRefine((value, ctx) => {
   if (!value.dueDate) return;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value.dueDate)) {

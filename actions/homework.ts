@@ -82,6 +82,7 @@ export async function createHomework(rawInput: HomeworkInput): Promise<ActionRes
       description: parsed.data.description || null,
       dueText: parsed.data.dueText,
       dueDate: dateOnlyToDate(parsed.data.dueDate),
+      isPast: parsed.data.isPast,
     },
     select: { id: true },
   });
@@ -99,7 +100,14 @@ export async function updateHomework(homeworkId: string, rawInput: HomeworkInput
   }
   await db.homework.update({
     where: { id: homeworkId },
-    data: { subject: parsed.data.subject, title: parsed.data.title, description: parsed.data.description || null, dueText: parsed.data.dueText, dueDate: dateOnlyToDate(parsed.data.dueDate) },
+    data: {
+      subject: parsed.data.subject,
+      title: parsed.data.title,
+      description: parsed.data.description || null,
+      dueText: parsed.data.dueText,
+      dueDate: dateOnlyToDate(parsed.data.dueDate),
+      isPast: parsed.data.isPast,
+    },
   });
   refreshHomework();
   return { success: true, data: undefined };

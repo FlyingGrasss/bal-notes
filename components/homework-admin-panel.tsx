@@ -162,6 +162,42 @@ function HomeworkOversight({ homework }: { homework: HomeworkDto[] }) {
 
 function AdminHomeworkEditDialog({ item, onClose, onSaved }: { item: HomeworkDto | null; onClose: () => void; onSaved: () => void }) {
   const [pending, startTransition] = useTransition();
-  function submit(event: React.FormEvent<HTMLFormElement>) { event.preventDefault(); if (!item) return; const data = new FormData(event.currentTarget); startTransition(async () => { const result = await updateHomework(item.id, { title: String(data.get("title") || ""), description: String(data.get("description") || ""), subject: String(data.get("subject") || "") as HomeworkSubjectValue, dueText: String(data.get("dueText") || ""), dueDate: String(data.get("dueDate") || "") }); if (!result.success) { toast.error(result.error); return; } toast.success("Ödev güncellendi."); onSaved(); }); }
-  return <Dialog open={Boolean(item)} onOpenChange={(open) => !open && onClose()}><DialogContent title="Ödevi düzenle"><form onSubmit={submit} className="space-y-4"><div><label className="label">Başlık</label><input className="field" name="title" defaultValue={item?.title || ""} required /></div><div><label className="label">Ders</label><select className="field" name="subject" defaultValue={item?.subject || "EDEBIYAT"}>{HOMEWORK_SUBJECT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div><div><label className="label">Teslim <span className="font-normal text-muted">(isteğe bağlı)</span></label><input className="field" name="dueText" defaultValue={item?.dueText || ""} maxLength={160} /></div><div><label className="label">Sıralama tarihi <span className="font-normal text-muted">(isteğe bağlı)</span></label><input className="field" name="dueDate" type="date" defaultValue={item?.dueDate || ""} /></div><div><label className="label">Açıklama</label><textarea className="field" name="description" defaultValue={item?.description || ""} maxLength={2000} /></div><Button type="submit" className="w-full" disabled={pending}>Kaydet</Button></form></DialogContent></Dialog>;
+  function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!item) return;
+    const data = new FormData(event.currentTarget);
+    startTransition(async () => {
+      const result = await updateHomework(item.id, {
+        title: String(data.get("title") || ""),
+        description: String(data.get("description") || ""),
+        subject: String(data.get("subject") || "") as HomeworkSubjectValue,
+        dueText: String(data.get("dueText") || ""),
+        dueDate: String(data.get("dueDate") || ""),
+        isPast: data.get("isPast") === "on",
+      });
+      if (!result.success) { toast.error(result.error); return; }
+      toast.success("Ödev güncellendi.");
+      onSaved();
+    });
+  }
+  return (
+    <Dialog open={Boolean(item)} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent title="Ödevi düzenle">
+        <form onSubmit={submit} className="space-y-4">
+          <div><label className="label">Başlık</label><input className="field" name="title" defaultValue={item?.title || ""} required /></div>
+          <div><label className="label">Ders</label><select className="field" name="subject" defaultValue={item?.subject || "EDEBIYAT"}>{HOMEWORK_SUBJECT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>
+          <div><label className="label">Teslim <span className="font-normal text-muted">(isteğe bağlı)</span></label><input className="field" name="dueText" defaultValue={item?.dueText || ""} maxLength={160} /></div>
+          <div><label className="label">Sıralama tarihi <span className="font-normal text-muted">(isteğe bağlı)</span></label><input className="field" name="dueDate" type="date" defaultValue={item?.dueDate || ""} /></div>
+          <div><label className="label">Açıklama</label><textarea className="field" name="description" defaultValue={item?.description || ""} maxLength={2000} /></div>
+          <div>
+            <label className="inline-flex items-center gap-2 text-sm font-bold text-ink">
+              <input type="checkbox" name="isPast" defaultChecked={item?.isPast || false} className="size-4 rounded border-line text-bal focus:ring-bal" />
+              Geçmiş ödev olarak işaretle
+            </label>
+          </div>
+          <Button type="submit" className="w-full" disabled={pending}>Kaydet</Button>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }
