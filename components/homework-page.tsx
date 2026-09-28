@@ -39,8 +39,8 @@ export function HomeworkWriterDashboard({ writer, homework }: { writer: Homework
   const [deleteItem, setDeleteItem] = useState<HomeworkDto | null>(null);
   const [pending, startTransition] = useTransition();
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
-  const currentHomework = useMemo(() => homework.filter((item) => !item.dueDate || item.dueDate >= today).sort((left, right) => (left.dueDate || "9999-12-31").localeCompare(right.dueDate || "9999-12-31")), [homework, today]);
-  const pastHomework = useMemo(() => homework.filter((item) => item.dueDate && item.dueDate < today).sort((left, right) => (right.dueDate || "").localeCompare(left.dueDate || "")), [homework, today]);
+  const currentHomework = useMemo(() => homework.filter((item) => !item.isPast && (!item.dueDate || item.dueDate >= today)).sort((left, right) => (left.dueDate || "9999-12-31").localeCompare(right.dueDate || "9999-12-31")), [homework, today]);
+  const pastHomework = useMemo(() => homework.filter((item) => item.isPast || (item.dueDate && item.dueDate < today)).sort((left, right) => (right.dueDate || "").localeCompare(left.dueDate || "") || right.updatedAt.localeCompare(left.updatedAt)), [homework, today]);
 
   function remove() {
     if (!deleteItem) return;
@@ -95,7 +95,7 @@ function HomeworkSection({ title, description, items, onEdit, onDelete, empty }:
 }
 
 function HomeworkCard({ item, manage = false, onEdit, onDelete }: { item: HomeworkDto; manage?: boolean; onEdit?: () => void; onDelete?: () => void }) {
-  const dateStatus = manage ? getHomeworkDateStatus(item.dueDate) : null;
+  const dateStatus = manage ? getHomeworkDateStatus(item.dueDate, item.isPast) : null;
   const statusLabel = dateStatus === "overdue" ? "Süresi geçti" : dateStatus === "today" ? "Bugün" : "Yaklaşıyor";
   const statusClass = dateStatus === "overdue" ? "bg-red-100 text-red-800" : dateStatus === "today" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800";
   const SubjectIcon = SUBJECT_ICONS[item.subject];

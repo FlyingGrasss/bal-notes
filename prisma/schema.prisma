@@ -238,10 +238,11 @@ model Homework {
   description String?        @db.Text
   dueText     String
   dueDate     DateTime?      @db.Date
+  isPast      Boolean        @default(false)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
 
-  @@index([dueDate, subject])
+  @@index([isPast, dueDate, subject])
   @@index([writerId, updatedAt])
   @@map("homework")
   @@schema("balnotes")

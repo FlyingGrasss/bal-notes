@@ -33,8 +33,9 @@ describe("homework credential boundaries", () => {
   it("keeps date-only homework on the Istanbul calendar date", () => {
     const date = dateOnlyToDate("2026-10-04");
     expect(formatHomeworkDate(date!)).toContain("4 Ekim 2026");
-    expect(getHomeworkDateStatus("2026-10-03", new Date("2026-10-04T12:00:00Z"))).toBe("overdue");
-    expect(getHomeworkDateStatus("2026-10-04", new Date("2026-10-04T12:00:00Z"))).toBe("today");
-    expect(getHomeworkDateStatus("2026-10-05", new Date("2026-10-04T12:00:00Z"))).toBe("upcoming");
+    expect(getHomeworkDateStatus("2026-10-03", false, new Date("2026-10-04T12:00:00Z"))).toBe("overdue");
+    expect(getHomeworkDateStatus("2026-10-04", false, new Date("2026-10-04T12:00:00Z"))).toBe("today");
+    expect(getHomeworkDateStatus("2026-10-05", false, new Date("2026-10-04T12:00:00Z"))).toBe("upcoming");
+    expect(getHomeworkDateStatus("2026-10-05", true, new Date("2026-10-04T12:00:00Z"))).toBe("overdue");
   });
 });

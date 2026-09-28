@@ -8,6 +8,7 @@ export type HomeworkDto = {
   subject: HomeworkSubjectValue;
   dueText: string;
   dueDate: string | null;
+  isPast: boolean;
   writer: { id: string; name: string; kind: HomeworkWriterKindValue };
   updatedAt: string;
 };

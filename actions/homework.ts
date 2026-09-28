@@ -105,6 +105,17 @@ export async function updateHomework(homeworkId: string, rawInput: HomeworkInput
   return { success: true, data: undefined };
 }
 
+export async function setHomeworkPast(homeworkId: string, isPast: boolean): Promise<ActionResult> {
+  const managed = await canManageHomework(homeworkId);
+  if (!managed) return { success: false, error: "Bu ödevi düzenleme yetkiniz yok." };
+  await db.homework.update({
+    where: { id: homeworkId },
+    data: { isPast },
+  });
+  refreshHomework();
+  return { success: true, data: undefined };
+}
+
 export async function deleteHomework(homeworkId: string): Promise<ActionResult> {
   const managed = await canManageHomework(homeworkId);
   if (!managed) return { success: false, error: "Bu ödevi silme yetkiniz yok." };

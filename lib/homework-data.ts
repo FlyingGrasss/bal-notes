@@ -11,11 +11,11 @@ function toDateOnly(value: Date) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(value);
 }
 
-function sortHomeworkByDueDate<T extends { dueDate: string | null; updatedAt: string }>(items: T[]) {
+function sortHomeworkByDueDate<T extends { dueDate: string | null; isPast?: boolean; updatedAt: string }>(items: T[]) {
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(new Date());
   return items.sort((left, right) => {
-    const leftPast = Boolean(left.dueDate && left.dueDate < today);
-    const rightPast = Boolean(right.dueDate && right.dueDate < today);
+    const leftPast = Boolean(left.isPast || (left.dueDate && left.dueDate < today));
+    const rightPast = Boolean(right.isPast || (right.dueDate && right.dueDate < today));
     if (leftPast !== rightPast) return leftPast ? 1 : -1;
     if (leftPast && rightPast) return (right.dueDate || "").localeCompare(left.dueDate || "") || right.updatedAt.localeCompare(left.updatedAt);
     if (left.dueDate === null && right.dueDate !== null) return 1;
@@ -39,6 +39,7 @@ export async function getPublicHomework() {
     subject: item.subject,
     dueText: item.dueText,
     dueDate: item.dueDate ? toDateOnly(item.dueDate) : null,
+    isPast: item.isPast,
     writer: item.writer,
     updatedAt: item.updatedAt.toISOString(),
   }));
@@ -61,13 +62,23 @@ export async function getHomeworkAdminData() {
     }),
     db.homework.findMany({
       include: { writer: { select: { id: true, name: true, kind: true } } },
-      orderBy: [{ dueDate: "asc" }, { updatedAt: "desc" }],
+      orderBy: [{ updatedAt: "desc" }],
       take: 200,
     }),
   ]);
   return {
     writers: writers.map((writer) => ({ ...writer, lastLoginAt: writer.lastLoginAt?.toISOString() ?? null, createdAt: writer.createdAt.toISOString() })),
-    homework: sortHomeworkByDueDate(homework.map((item) => ({ ...item, dueDate: item.dueDate ? toDateOnly(item.dueDate) : null, updatedAt: item.updatedAt.toISOString() }))),
+    homework: homework.map((item): HomeworkDto => ({
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      subject: item.subject,
+      dueText: item.dueText,
+      dueDate: item.dueDate ? toDateOnly(item.dueDate) : null,
+      isPast: item.isPast,
+      writer: item.writer,
+      updatedAt: item.updatedAt.toISOString(),
+    })),
   };
 }
 

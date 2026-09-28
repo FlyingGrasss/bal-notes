@@ -14,7 +14,8 @@ export function formatHomeworkDate(value: Date | string) {
 
 export type HomeworkDateStatus = "overdue" | "today" | "upcoming";
 
-export function getHomeworkDateStatus(value: Date | string | null, now = new Date()): HomeworkDateStatus | null {
+export function getHomeworkDateStatus(value: Date | string | null, isPast = false, now = new Date()): HomeworkDateStatus | null {
+  if (isPast) return "overdue";
   if (!value) return null;
   const dueDate = typeof value === "string" ? value : new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(value);
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Istanbul" }).format(now);

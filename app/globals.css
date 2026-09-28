@@ -33,7 +33,9 @@
 }
 
 html {
+  background: #f7f8fa;
   background: var(--paper);
+  color: #171717;
   color: var(--ink);
   text-rendering: optimizeLegibility;
 }
@@ -41,12 +43,15 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
+  background-color: #f7f8fa;
+  background-color: var(--paper);
   background:
-    radial-gradient(circle at 82% -10%, rgb(162 26 42 / 10%), transparent 30rem),
-    linear-gradient(rgb(162 26 42 / 2.5%) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(162 26 42 / 2.5%) 1px, transparent 1px),
-    var(--paper);
+    radial-gradient(circle at 82% -10%, rgba(162, 26, 42, 0.1), transparent 30rem),
+    linear-gradient(rgba(162, 26, 42, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(162, 26, 42, 0.025) 1px, transparent 1px),
+    #f7f8fa;
   background-size: auto, 42px 42px, 42px 42px, auto;
+  color: #171717;
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -75,11 +80,12 @@ button:disabled {
 }
 
 :focus-visible {
-  outline: 3px solid rgb(162 26 42 / 28%);
+  outline: 3px solid rgba(162, 26, 42, 0.28);
   outline-offset: 3px;
 }
 
 ::selection {
+  background: #a21a2a;
   background: var(--bal);
   color: white;
 }
@@ -104,10 +110,33 @@ button:disabled {
 }
 
 .paper-card {
+  border: 1px solid #e4e7ec;
   border: 1px solid var(--line);
+  border-radius: 1rem;
   border-radius: var(--radius);
-  background: var(--card);
-  box-shadow: 0 8px 30px rgb(16 24 40 / 5%);
+  background-color: #ffffff;
+  background-color: var(--card);
+  box-shadow: 0 8px 30px rgba(16, 24, 40, 0.05);
+}
+
+.bg-bal {
+  background-color: #a21a2a;
+}
+
+.bg-bal-soft {
+  background-color: #fff0f2;
+}
+
+.text-bal {
+  color: #a21a2a;
+}
+
+.bg-paper {
+  background-color: #f7f8fa;
+}
+
+.bg-paper-deep {
+  background-color: #eef1f5;
 }
 
 .field {

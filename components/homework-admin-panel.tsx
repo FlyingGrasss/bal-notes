@@ -1,11 +1,11 @@
 "use client";
 
-import { Pencil, Plus, RefreshCw, ShieldOff, Trash2 } from "lucide-react";
+import { CheckSquare, Pencil, Plus, RefreshCw, ShieldOff, Square, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { createHomeworkWriter, deleteHomework, deleteHomeworkWriter, rotateHomeworkWriterKey, setHomeworkWriterActive, updateHomework, updateHomeworkWriter } from "@/actions/homework";
+import { createHomeworkWriter, deleteHomework, deleteHomeworkWriter, rotateHomeworkWriterKey, setHomeworkPast, setHomeworkWriterActive, updateHomework, updateHomeworkWriter } from "@/actions/homework";
 import { HOMEWORK_SUBJECT_LABELS, HOMEWORK_SUBJECT_OPTIONS } from "@/lib/constants";
 import { formatHomeworkDate } from "@/lib/homework-display";
 import type { HomeworkDto, HomeworkSubjectValue, HomeworkWriterKindValue, HomeworkWriterView } from "@/lib/homework-types";
@@ -47,11 +47,117 @@ function CredentialDialog({ credential, onOpenChange }: { credential: Credential
 
 function HomeworkOversight({ homework }: { homework: HomeworkDto[] }) {
   const router = useRouter();
+  const [showPast, setShowPast] = useState(false);
   const [editItem, setEditItem] = useState<HomeworkDto | null>(null);
   const [deleteItem, setDeleteItem] = useState<HomeworkDto | null>(null);
   const [pending, startTransition] = useTransition();
-  function remove() { if (!deleteItem) return; startTransition(async () => { const result = await deleteHomework(deleteItem.id); if (!result.success) { toast.error(result.error); return; } toast.success("Ödev silindi."); setDeleteItem(null); router.refresh(); }); }
-  return <section><div className="mb-4"><h2 className="text-xl font-black">Ödev denetimi</h2><p className="mt-1 text-sm text-muted">Tüm yazarların ödevlerini düzenleyin veya kaldırın.</p></div><div className="space-y-3">{homework.length ? homework.map((item) => <article key={item.id} className="paper-card flex flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center"><div><div className="flex flex-wrap gap-2"><span className="rounded-full bg-bal-soft px-2.5 py-1 text-[10px] font-black uppercase text-bal">{HOMEWORK_SUBJECT_LABELS[item.subject]}</span><span className="text-xs font-bold text-muted">Teslim: {item.dueText}</span></div><h3 className="mt-2 font-black">{item.title}</h3><p className="mt-1 text-xs text-muted">{item.writer.name}</p></div><div className="flex gap-2"><Button variant="outline" size="sm" onClick={() => setEditItem(item)}><Pencil size={14} /> Düzenle</Button><Button variant="danger" size="sm" onClick={() => setDeleteItem(item)}><Trash2 size={14} /> Sil</Button></div></article>) : <div className="rounded-2xl border border-dashed border-line p-6 text-sm text-muted">Henüz ödev yok.</div>}</div><AdminHomeworkEditDialog item={editItem} onClose={() => setEditItem(null)} onSaved={() => { setEditItem(null); router.refresh(); }} /><ConfirmDialog open={Boolean(deleteItem)} onOpenChange={(open) => !open && setDeleteItem(null)} title="Ödevi sil" description="Bu ödev ve bağlı açıklaması kalıcı olarak kaldırılacak." confirmLabel="Ödevi Sil" pending={pending} onConfirm={remove} /></section>;
+
+  const activeHomework = useMemo(
+    () => homework.filter((item) => !item.isPast),
+    [homework]
+  );
+
+  const pastHomework = useMemo(
+    () => homework.filter((item) => item.isPast).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+    [homework]
+  );
+
+  const displayedItems = showPast ? pastHomework : activeHomework;
+
+  function togglePast(item: HomeworkDto) {
+    startTransition(async () => {
+      const nextState = !item.isPast;
+      const result = await setHomeworkPast(item.id, nextState);
+      if (!result.success) { toast.error(result.error); return; }
+      toast.success(nextState ? "Ödev geçmişe taşındı." : "Ödev güncele taşındı.");
+      router.refresh();
+    });
+  }
+
+  function remove() {
+    if (!deleteItem) return;
+    startTransition(async () => {
+      const result = await deleteHomework(deleteItem.id);
+      if (!result.success) { toast.error(result.error); return; }
+      toast.success("Ödev silindi.");
+      setDeleteItem(null);
+      router.refresh();
+    });
+  }
+
+  return (
+    <section>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-xl font-black">Ödev denetimi</h2>
+          <p className="mt-1 text-sm text-muted">Tüm yazarların ödevlerini düzenleyin, geçmişe taşıyın veya kaldırın.</p>
+        </div>
+        <div className="flex self-start rounded-xl border border-line bg-paper-deep p-1 text-xs font-black sm:self-auto">
+          <button
+            type="button"
+            onClick={() => setShowPast(false)}
+            className={`rounded-lg px-3.5 py-1.5 transition ${!showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
+          >
+            Güncel ({activeHomework.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowPast(true)}
+            className={`rounded-lg px-3.5 py-1.5 transition ${showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
+          >
+            Geçmiş ({pastHomework.length})
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {displayedItems.length ? (
+          displayedItems.map((item) => (
+            <article key={item.id} className="paper-card flex flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-bal-soft px-2.5 py-1 text-[10px] font-black uppercase text-bal">
+                    {HOMEWORK_SUBJECT_LABELS[item.subject]}
+                  </span>
+                  <span className="text-xs font-bold text-muted">Teslim: {item.dueText || "belirtilmedi"}</span>
+                  {item.isPast ? (
+                    <span className="rounded-full bg-stone-200 px-2 py-0.5 text-[10px] font-bold text-stone-700">Geçmiş</span>
+                  ) : null}
+                </div>
+                <h3 className="mt-2 font-black">{item.title}</h3>
+                <p className="mt-1 text-xs text-muted">{item.writer.name}</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => togglePast(item)}
+                  disabled={pending}
+                  className={item.isPast ? "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100" : ""}
+                >
+                  {item.isPast ? <CheckSquare size={14} /> : <Square size={14} />}
+                  {item.isPast ? "Geçmişte" : "Geçmişe at"}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setEditItem(item)}>
+                  <Pencil size={14} /> Düzenle
+                </Button>
+                <Button variant="danger" size="sm" onClick={() => setDeleteItem(item)}>
+                  <Trash2 size={14} /> Sil
+                </Button>
+              </div>
+            </article>
+          ))
+        ) : (
+          <div className="rounded-2xl border border-dashed border-line p-6 text-sm text-muted">
+            {showPast ? "Henüz geçmiş ödev yok." : "Henüz güncel ödev yok."}
+          </div>
+        )}
+      </div>
+
+      <AdminHomeworkEditDialog item={editItem} onClose={() => setEditItem(null)} onSaved={() => { setEditItem(null); router.refresh(); }} />
+      <ConfirmDialog open={Boolean(deleteItem)} onOpenChange={(open) => !open && setDeleteItem(null)} title="Ödevi sil" description="Bu ödev ve bağlı açıklaması kalıcı olarak kaldırılacak." confirmLabel="Ödevi Sil" pending={pending} onConfirm={remove} />
+    </section>
+  );
 }
 
 function AdminHomeworkEditDialog({ item, onClose, onSaved }: { item: HomeworkDto | null; onClose: () => void; onSaved: () => void }) {
