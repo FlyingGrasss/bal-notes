@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
 import Image from "next/image";
 import { toast } from "sonner";
-import { createHomeworkWriter, deleteHomework, deleteHomeworkWriter, rotateHomeworkWriterKey, setHomeworkPast, setHomeworkWriterActive, updateHomework, updateHomeworkWriter } from "@/actions/homework";
+import { createHomework, createHomeworkWriter, deleteHomework, deleteHomeworkWriter, rotateHomeworkWriterKey, setHomeworkPast, setHomeworkWriterActive, updateHomework, updateHomeworkWriter } from "@/actions/homework";
 import { HOMEWORK_SUBJECT_LABELS, HOMEWORK_SUBJECT_OPTIONS } from "@/lib/constants";
 import { formatHomeworkDate } from "@/lib/homework-display";
 import type { HomeworkDto, HomeworkSubjectValue, HomeworkWriterKindValue, HomeworkWriterView } from "@/lib/homework-types";
@@ -16,7 +16,7 @@ type AdminHomeworkWriter = HomeworkWriterView & { createdAt: string };
 type Credential = { writer: { id: string; name: string; kind: HomeworkWriterKindValue; fixedSubject: HomeworkSubjectValue | null }; loginUrl: string; qrDataUrl: string };
 
 export function HomeworkAdminPanel({ writers, homework }: { writers: AdminHomeworkWriter[]; homework: HomeworkDto[] }) {
-  return <div className="space-y-10"><WriterAccounts writers={writers} /><HomeworkOversight homework={homework} /></div>;
+  return <div className="space-y-10"><WriterAccounts writers={writers} /><HomeworkOversight writers={writers} homework={homework} /></div>;
 }
 
 function WriterAccounts({ writers }: { writers: AdminHomeworkWriter[] }) {
@@ -45,9 +45,10 @@ function CredentialDialog({ credential, onOpenChange }: { credential: Credential
   return <Dialog open={Boolean(credential)} onOpenChange={onOpenChange}><DialogContent title="Yazar giriş kartı" description="Bu QR kodu ve bağlantıyı şimdi kaydedin. Pencere kapatılınca tekrar gösterilmez.">{credential ? <div className="space-y-4"><div className="flex justify-center rounded-2xl bg-white p-4"><Image src={credential.qrDataUrl} alt="Ödev yazarı giriş QR kodu" width={320} height={320} unoptimized className="size-64" /></div><div><p className="label">Giriş bağlantısı</p><a className="block break-all rounded-xl border border-line bg-paper-deep p-3 text-sm text-bal underline" href={credential.loginUrl}>{credential.loginUrl}</a></div><p className="text-xs leading-5 text-muted">Bağlantı ve QR kodu kapattıktan sonra güvenlik nedeniyle yeniden gösterilemez. Gerekirse anahtarı yenileyin.</p></div> : null}</DialogContent></Dialog>;
 }
 
-function HomeworkOversight({ homework }: { homework: HomeworkDto[] }) {
+function HomeworkOversight({ writers, homework }: { writers: AdminHomeworkWriter[]; homework: HomeworkDto[] }) {
   const router = useRouter();
   const [showPast, setShowPast] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [editItem, setEditItem] = useState<HomeworkDto | null>(null);
   const [deleteItem, setDeleteItem] = useState<HomeworkDto | null>(null);
   const [pending, startTransition] = useTransition();
@@ -90,23 +91,28 @@ function HomeworkOversight({ homework }: { homework: HomeworkDto[] }) {
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-xl font-black">Ödev denetimi</h2>
-          <p className="mt-1 text-sm text-muted">Tüm yazarların ödevlerini düzenleyin, geçmişe taşıyın veya kaldırın.</p>
+          <p className="mt-1 text-sm text-muted">Tüm yazarların ödevlerini düzenleyin, geçmişe taşıyın veya yeni ödev ekleyin.</p>
         </div>
-        <div className="flex self-start rounded-xl border border-line bg-paper-deep p-1 text-xs font-black sm:self-auto">
-          <button
-            type="button"
-            onClick={() => setShowPast(false)}
-            className={`rounded-lg px-3.5 py-1.5 transition ${!showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
-          >
-            Güncel ({activeHomework.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowPast(true)}
-            className={`rounded-lg px-3.5 py-1.5 transition ${showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
-          >
-            Geçmiş ({pastHomework.length})
-          </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
+            <Plus size={15} /> Yeni ödev ekle
+          </Button>
+          <div className="flex rounded-xl border border-line bg-paper-deep p-1 text-xs font-black">
+            <button
+              type="button"
+              onClick={() => setShowPast(false)}
+              className={`rounded-lg px-3.5 py-1.5 transition ${!showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
+            >
+              Güncel ({activeHomework.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPast(true)}
+              className={`rounded-lg px-3.5 py-1.5 transition ${showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
+            >
+              Geçmiş ({pastHomework.length})
+            </button>
+          </div>
         </div>
       </div>
 
@@ -154,9 +160,72 @@ function HomeworkOversight({ homework }: { homework: HomeworkDto[] }) {
         )}
       </div>
 
+      <AdminCreateHomeworkDialog writers={writers} open={createOpen} onOpenChange={setCreateOpen} onSaved={() => { setCreateOpen(false); router.refresh(); }} />
       <AdminHomeworkEditDialog item={editItem} onClose={() => setEditItem(null)} onSaved={() => { setEditItem(null); router.refresh(); }} />
       <ConfirmDialog open={Boolean(deleteItem)} onOpenChange={(open) => !open && setDeleteItem(null)} title="Ödevi sil" description="Bu ödev ve bağlı açıklaması kalıcı olarak kaldırılacak." confirmLabel="Ödevi Sil" pending={pending} onConfirm={remove} />
     </section>
+  );
+}
+
+function AdminCreateHomeworkDialog({ writers, open, onOpenChange, onSaved }: { writers: AdminHomeworkWriter[]; open: boolean; onOpenChange: (open: boolean) => void; onSaved: () => void }) {
+  const [pending, startTransition] = useTransition();
+  function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const writerId = String(data.get("writerId") || "");
+    const input = {
+      title: String(data.get("title") || ""),
+      description: String(data.get("description") || ""),
+      subject: String(data.get("subject") || "") as HomeworkSubjectValue,
+      dueText: String(data.get("dueText") || ""),
+      dueDate: String(data.get("dueDate") || ""),
+      isPast: data.get("isPast") === "on",
+      writerId,
+    };
+    startTransition(async () => {
+      const result = await createHomework(input);
+      if (!result.success) { toast.error(result.error); return; }
+      toast.success("Ödev oluşturuldu.");
+      onOpenChange(false);
+      onSaved();
+    });
+  }
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent title="Yeni ödev ekle" description="Ödevi ve atamak istediğiniz yazarı seçin.">
+        <form onSubmit={submit} className="space-y-4">
+          <div><label className="label">Başlık</label><input className="field" name="title" required minLength={2} maxLength={120} /></div>
+          <div>
+            <label className="label">Yazar / Paylaşan</label>
+            <select className="field" name="writerId" required>
+              {writers.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name} ({w.kind === "TEACHER" ? HOMEWORK_SUBJECT_LABELS[w.fixedSubject!] : "Akıllı Tahta"})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="label">Ders</label>
+            <select className="field" name="subject" defaultValue="MATEMATIK">
+              {HOMEWORK_SUBJECT_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+          <div><label className="label">Teslim <span className="font-normal text-muted">(isteğe bağlı)</span></label><input className="field" name="dueText" placeholder="Örn. ilk derse veya haftaya salı" maxLength={160} /></div>
+          <div><label className="label">Sıralama tarihi <span className="font-normal text-muted">(isteğe bağlı)</span></label><input className="field" name="dueDate" type="date" /></div>
+          <div><label className="label">Açıklama <span className="font-normal text-muted">(isteğe bağlı)</span></label><textarea className="field min-h-24" name="description" maxLength={2000} /></div>
+          <div>
+            <label className="inline-flex items-center gap-2 text-sm font-bold text-ink">
+              <input type="checkbox" name="isPast" className="size-4 rounded border-line text-bal focus:ring-bal" />
+              Geçmiş ödev olarak işaretle
+            </label>
+          </div>
+          <Button type="submit" className="w-full" disabled={pending}>Ödevi Yayınla</Button>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 

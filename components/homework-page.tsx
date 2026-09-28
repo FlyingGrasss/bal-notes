@@ -40,22 +40,27 @@ export function HomeworkPublicPage({ homework }: { homework: HomeworkDto[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm font-bold text-muted">
-          {showPast ? `Toplam ${pastHomework.length} geçmiş ödev` : `Toplam ${activeHomework.length} güncel ödev`}
-        </p>
-        <div className="flex self-start rounded-xl border border-line bg-paper-deep p-1 text-xs font-black sm:self-auto">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="section-title text-4xl">11/C için Ödevler</h1>
+          <p className="mt-2 text-muted">
+            {showPast
+              ? "Tamamlanmış ve geçmiş ödev arşivi (son güncellenenler üstte)."
+              : "Derslere göre güncel ödevleri ve teslim tarihlerini burada bulabilirsiniz."}
+          </p>
+        </div>
+        <div className="flex shrink-0 self-start rounded-xl border border-line bg-paper-deep p-1 text-xs font-black sm:self-auto">
           <button
             type="button"
             onClick={() => setShowPast(false)}
-            className={`rounded-lg px-3.5 py-1.5 transition ${!showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
+            className={`rounded-lg px-4 py-2 transition ${!showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
           >
             Güncel ({activeHomework.length})
           </button>
           <button
             type="button"
             onClick={() => setShowPast(true)}
-            className={`rounded-lg px-3.5 py-1.5 transition ${showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
+            className={`rounded-lg px-4 py-2 transition ${showPast ? "bg-white text-bal shadow-sm" : "text-muted hover:text-ink"}`}
           >
             Geçmiş ({pastHomework.length})
           </button>

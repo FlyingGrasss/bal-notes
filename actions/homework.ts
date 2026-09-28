@@ -66,17 +66,34 @@ export async function logoutHomeworkWriter(): Promise<ActionResult> {
   return { success: true, data: undefined };
 }
 
-export async function createHomework(rawInput: HomeworkInput): Promise<ActionResult<{ homeworkId: string }>> {
+export async function createHomework(rawInput: HomeworkInput & { writerId?: string }): Promise<ActionResult<{ homeworkId: string }>> {
   const auth = await getHomeworkAuth();
-  if (!auth.writer) return { success: false, error: "Ödev paylaşmak için yazar girişi yapın." };
+  if (!auth.writer && !auth.isAdmin) return { success: false, error: "Ödev paylaşmak için yazar veya yönetici girişi yapın." };
   const parsed = homeworkInputSchema.safeParse(rawInput);
   if (!parsed.success) return { success: false, error: firstZodError(parsed.error) };
-  if (auth.writer.kind === "TEACHER" && auth.writer.fixedSubject !== parsed.data.subject) {
+
+  let targetWriterId = auth.writer?.id;
+  if (auth.isAdmin) {
+    if (rawInput.writerId) {
+      targetWriterId = rawInput.writerId;
+    } else if (!targetWriterId) {
+      const defaultWriter = await db.homeworkWriter.findFirst({ where: { isActive: true }, orderBy: { createdAt: "asc" } });
+      if (!defaultWriter) return { success: false, error: "Ödev eklemeden önce en az bir yazar hesabı oluşturun." };
+      targetWriterId = defaultWriter.id;
+    }
+  }
+
+  if (auth.writer && !auth.isAdmin && auth.writer.kind === "TEACHER" && auth.writer.fixedSubject !== parsed.data.subject) {
     return { success: false, error: "Bu yazar yalnızca kendi dersi için ödev paylaşabilir." };
   }
+
+  if (!targetWriterId) {
+    return { success: false, error: "Yazar bulunamadı." };
+  }
+
   const homework = await db.homework.create({
     data: {
-      writerId: auth.writer.id,
+      writerId: targetWriterId,
       subject: parsed.data.subject,
       title: parsed.data.title,
       description: parsed.data.description || null,
