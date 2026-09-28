@@ -1,15 +1,16 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Download, FileText, Share2 } from "lucide-react";
 import { getNote } from "@/lib/data";
-import { db } from "@/lib/db";
 import { GRADE_LABELS } from "@/lib/constants";
 import { appUrl, formatDate } from "@/lib/utils";
 import { Avatar } from "@/components/avatar";
 import { VoteButton } from "@/components/vote-button";
 import { ShareDialog } from "@/components/share-dialog";
+import { NoteDetailLoading } from "@/components/notes-loading";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -20,8 +21,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: note.title, description, alternates: { canonical }, openGraph: { title: note.title, description, url: canonical, type: "article" } };
 }
 
+export default function NoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  return (
+    <Suspense fallback={<NoteDetailLoading />}>
+      <NoteDetailContent params={params} />
+    </Suspense>
+  );
+}
 
-export default async function NoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
+async function NoteDetailContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const note = await getNote(id);
   if (!note) notFound();
