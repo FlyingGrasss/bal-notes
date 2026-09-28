@@ -20,10 +20,6 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   return { title: note.title, description, alternates: { canonical }, openGraph: { title: note.title, description, url: canonical, type: "article" } };
 }
 
-export async function generateStaticParams() {
-  const notes = await db.note.findMany({ where: { status: "APPROVED" }, select: { id: true } });
-  return notes.map(({ id }) => ({ id }));
-}
 
 export default async function NoteDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
