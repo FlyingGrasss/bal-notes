@@ -107,17 +107,31 @@ export async function createHomework(rawInput: HomeworkInput & { writerId?: stri
   return { success: true, data: { homeworkId: homework.id } };
 }
 
-export async function updateHomework(homeworkId: string, rawInput: HomeworkInput): Promise<ActionResult> {
+export async function updateHomework(homeworkId: string, rawInput: HomeworkInput & { writerId?: string }): Promise<ActionResult> {
   const managed = await canManageHomework(homeworkId);
   if (!managed) return { success: false, error: "Bu ödevi düzenleme yetkiniz yok." };
   const parsed = homeworkInputSchema.safeParse(rawInput);
   if (!parsed.success) return { success: false, error: firstZodError(parsed.error) };
-  if (managed.auth.writer?.kind === "TEACHER" && managed.auth.writer.fixedSubject !== parsed.data.subject) {
+  if (managed.auth.writer && !managed.auth.isAdmin && managed.auth.writer.kind === "TEACHER" && managed.auth.writer.fixedSubject !== parsed.data.subject) {
     return { success: false, error: "Bu yazar yalnızca kendi dersi için ödev paylaşabilir." };
   }
+
+  let targetWriterId: string | undefined = undefined;
+  if (managed.auth.isAdmin && rawInput.writerId) {
+    const targetWriter = await db.homeworkWriter.findUnique({
+      where: { id: rawInput.writerId },
+      select: { id: true },
+    });
+    if (!targetWriter) {
+      return { success: false, error: "Seçilen yazar bulunamadı." };
+    }
+    targetWriterId = targetWriter.id;
+  }
+
   await db.homework.update({
     where: { id: homeworkId },
     data: {
+      ...(targetWriterId ? { writerId: targetWriterId } : {}),
       subject: parsed.data.subject,
       title: parsed.data.title,
       description: parsed.data.description || null,

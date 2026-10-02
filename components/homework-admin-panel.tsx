@@ -161,7 +161,7 @@ function HomeworkOversight({ writers, homework }: { writers: AdminHomeworkWriter
       </div>
 
       <AdminCreateHomeworkDialog writers={writers} open={createOpen} onOpenChange={setCreateOpen} onSaved={() => { setCreateOpen(false); router.refresh(); }} />
-      <AdminHomeworkEditDialog item={editItem} onClose={() => setEditItem(null)} onSaved={() => { setEditItem(null); router.refresh(); }} />
+      <AdminHomeworkEditDialog writers={writers} item={editItem} onClose={() => setEditItem(null)} onSaved={() => { setEditItem(null); router.refresh(); }} />
       <ConfirmDialog open={Boolean(deleteItem)} onOpenChange={(open) => !open && setDeleteItem(null)} title="Ödevi sil" description="Bu ödev ve bağlı açıklaması kalıcı olarak kaldırılacak." confirmLabel="Ödevi Sil" pending={pending} onConfirm={remove} />
     </section>
   );
@@ -229,12 +229,13 @@ function AdminCreateHomeworkDialog({ writers, open, onOpenChange, onSaved }: { w
   );
 }
 
-function AdminHomeworkEditDialog({ item, onClose, onSaved }: { item: HomeworkDto | null; onClose: () => void; onSaved: () => void }) {
+function AdminHomeworkEditDialog({ writers, item, onClose, onSaved }: { writers: AdminHomeworkWriter[]; item: HomeworkDto | null; onClose: () => void; onSaved: () => void }) {
   const [pending, startTransition] = useTransition();
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!item) return;
     const data = new FormData(event.currentTarget);
+    const writerId = String(data.get("writerId") || "");
     startTransition(async () => {
       const result = await updateHomework(item.id, {
         title: String(data.get("title") || ""),
@@ -243,6 +244,7 @@ function AdminHomeworkEditDialog({ item, onClose, onSaved }: { item: HomeworkDto
         dueText: String(data.get("dueText") || ""),
         dueDate: String(data.get("dueDate") || ""),
         isPast: data.get("isPast") === "on",
+        writerId,
       });
       if (!result.success) { toast.error(result.error); return; }
       toast.success("Ödev güncellendi.");
@@ -251,13 +253,23 @@ function AdminHomeworkEditDialog({ item, onClose, onSaved }: { item: HomeworkDto
   }
   return (
     <Dialog open={Boolean(item)} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent title="Ödevi düzenle">
+      <DialogContent title="Ödevi düzenle" description="Ödev bilgilerini ve atanan yazarı güncelleyin.">
         <form onSubmit={submit} className="space-y-4">
-          <div><label className="label">Başlık</label><input className="field" name="title" defaultValue={item?.title || ""} required /></div>
+          <div><label className="label">Başlık</label><input className="field" name="title" defaultValue={item?.title || ""} required minLength={2} maxLength={120} /></div>
+          <div>
+            <label className="label">Yazar / Paylaşan</label>
+            <select className="field" name="writerId" defaultValue={item?.writer.id} required>
+              {writers.map((w) => (
+                <option key={w.id} value={w.id}>
+                  {w.name} ({w.kind === "TEACHER" ? HOMEWORK_SUBJECT_LABELS[w.fixedSubject!] : "Akıllı Tahta"})
+                </option>
+              ))}
+            </select>
+          </div>
           <div><label className="label">Ders</label><select className="field" name="subject" defaultValue={item?.subject || "EDEBIYAT"}>{HOMEWORK_SUBJECT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></div>
           <div><label className="label">Teslim <span className="font-normal text-muted">(isteğe bağlı)</span></label><input className="field" name="dueText" defaultValue={item?.dueText || ""} maxLength={160} /></div>
           <div><label className="label">Sıralama tarihi <span className="font-normal text-muted">(isteğe bağlı)</span></label><input className="field" name="dueDate" type="date" defaultValue={item?.dueDate || ""} /></div>
-          <div><label className="label">Açıklama</label><textarea className="field" name="description" defaultValue={item?.description || ""} maxLength={2000} /></div>
+          <div><label className="label">Açıklama <span className="font-normal text-muted">(isteğe bağlı)</span></label><textarea className="field min-h-24" name="description" defaultValue={item?.description || ""} maxLength={2000} /></div>
           <div>
             <label className="inline-flex items-center gap-2 text-sm font-bold text-ink">
               <input type="checkbox" name="isPast" defaultChecked={item?.isPast || false} className="size-4 rounded border-line text-bal focus:ring-bal" />
