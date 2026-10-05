@@ -3,19 +3,14 @@ import { Inter } from "next/font/google";
 import { Suspense } from "react";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { HomeworkHeader, SiteHeader } from "@/components/site-header";
+import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { appUrl, homeworkAppUrl } from "@/lib/utils";
+import { appUrl } from "@/lib/utils";
 
-const isHomework = process.env.SITE_MODE === "homework";
-const siteName = isHomework ? "BAL Ödevler" : "BAL Notes";
-const siteDescription = isHomework
-  ? "Bornova Anadolu Lisesi öğrencilerinin ve öğretmenlerinin güncel ödevleri."
-  : "Bornova Anadolu Lisesi öğrencilerinin sınava hazırlanmak için ders notlarını ve sınav konularını paylaştığı arşiv.";
-const siteUrl = isHomework ? homeworkAppUrl() : appUrl();
-const siteKeywords = isHomework
-  ? ["BAL Ödevler", "Bornova Anadolu Lisesi", "ödevler", "okul ödevleri", "teslim tarihi"]
-  : ["BAL Notes", "Bornova Anadolu Lisesi", "ders notları", "sınava hazırlık", "sınav konuları", "öğrenci notları"];
+const siteName = "BAL Notes";
+const siteDescription = "Bornova Anadolu Lisesi öğrencilerinin sınava hazırlanmak için ders notlarını ve sınav konularını paylaştığı arşiv.";
+const siteUrl = appUrl();
+const siteKeywords = ["BAL Notes", "Bornova Anadolu Lisesi", "ders notları", "sınava hazırlık", "sınav konuları", "öğrenci notları"];
 const inter = Inter({ subsets: ["latin"], display: "swap", preload: false });
 
 const siteStructuredData = {
@@ -75,9 +70,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className={`${inter.className} antialiased`}>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(siteStructuredData) }} />
         <Providers>
-          {isHomework ? <HomeworkHeader /> : <Suspense fallback={<div className="h-16" aria-hidden="true" />}><SiteHeader /></Suspense>}
+          <Suspense fallback={<div className="h-16" aria-hidden="true" />}><SiteHeader /></Suspense>
           <main className="site-main">{children}</main>
-          <SiteFooter site={isHomework ? "homework" : "notes"} />
+          <SiteFooter />
         </Providers>
       </body>
     </html>

@@ -49,17 +49,9 @@ BAL ID'nin Supabase projesinde OAuth Server etkin olmalıdır. BAL Notes'u **con
 - Reddedilen notlar doğrudan bağlantıyla görünür kalır; ancak keşfette yer almaz.
 - Kalıcı silme veya kullanıcı yasağı bağlantıyı ve dosyaları erişimden kaldırır.
 
-## Homework
+## BAL Ödevler
 
-Homework lives in the same deployment and database at `/odevler`.
-
-- Students read published homework without signing in.
-- The super-admin continues to sign in through BAL ID and `ADMIN_EMAILS`.
-- The super-admin creates writer accounts from `/admin`.
-- Each writer receives a private QR login link. The key is shown only when the account is created or its key is rotated.
-- Teacher accounts have one fixed subject. Smart-board accounts can choose any active homework subject.
-- Writers publish immediately and can edit or delete their own homework. The super-admin can revoke accounts and manage every homework item.
-- Due dates are calendar dates in the Europe/Istanbul timezone. Past homework remains visible until it is removed.
+Ödev uygulaması (`odevler.balogrenci.org`) artık bu depodan ayrı bir depo ve deployment olarak çalışır. Ödev tabloları aynı fiziksel veritabanının `balnotes` şemasında kalır; yönetici kimliği de BAL ID üzerinden aynı şekilde çalışır.
 
 ## Kontroller
 

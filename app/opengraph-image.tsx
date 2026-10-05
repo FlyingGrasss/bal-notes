@@ -1,16 +1,10 @@
 import { ImageResponse } from "next/og";
 
-export const alt = process.env.SITE_MODE === "homework" ? "BAL Ödevler" : "BAL Notes";
+export const alt = "BAL Notes";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function OpenGraphImage() {
-  const isHomework = process.env.SITE_MODE === "homework";
-  const title = isHomework ? "BAL Ödevler" : "BAL Notes";
-  const subtitle = isHomework
-    ? "Bornova Anadolu Lisesi ödevleri ve teslim tarihleri"
-    : "Sınava hazırlanmak için öğrencilerin ders notları ve sınav konuları";
-
   return new ImageResponse(
     <div
       style={{
@@ -27,8 +21,8 @@ export default function OpenGraphImage() {
     >
       <div style={{ display: "flex", fontSize: 28, fontWeight: 700, color: "#ff9baa" }}>BORNOVA ANADOLU LİSESİ</div>
       <div style={{ display: "flex", flexDirection: "column", gap: 22 }}>
-        <div style={{ display: "flex", fontSize: 88, fontWeight: 900, letterSpacing: "-0.06em" }}>{title}</div>
-        <div style={{ display: "flex", maxWidth: 900, fontSize: 34, lineHeight: 1.25, color: "rgba(255,255,255,.78)" }}>{subtitle}</div>
+        <div style={{ display: "flex", fontSize: 88, fontWeight: 900, letterSpacing: "-0.06em" }}>BAL Notes</div>
+        <div style={{ display: "flex", maxWidth: 900, fontSize: 34, lineHeight: 1.25, color: "rgba(255,255,255,.78)" }}>Sınava hazırlanmak için öğrencilerin ders notları ve sınav konuları</div>
       </div>
       <div style={{ display: "flex", fontSize: 24, fontWeight: 700, color: "rgba(255,255,255,.62)" }}>balogrenci.org</div>
     </div>,

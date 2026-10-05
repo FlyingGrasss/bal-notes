@@ -3,7 +3,6 @@ import "server-only";
 import { cacheLife, cacheTag } from "next/cache";
 import type { GradeLevel, Prisma, SubmissionStatus } from "@prisma/client";
 import { db } from "@/lib/db";
-import { getHomeworkAdminData } from "@/lib/homework-data";
 import { CACHE_TAGS } from "@/lib/cache-tags";
 
 export const noteCardInclude = {
@@ -140,7 +139,7 @@ export async function getApprovedQuotes() {
 
 export async function getAdminData() {
   const moderationStatuses: SubmissionStatus[] = ["PENDING", "APPROVED", "REJECTED"];
-  const [notes, quotes, subjects, users, counts, homeworkData] = await Promise.all([
+  const [notes, quotes, subjects, users, counts] = await Promise.all([
     db.note.findMany({
       where: { status: { in: moderationStatuses } },
       include: { ...noteCardInclude, assets: { orderBy: { sortOrder: "asc" } } },
@@ -164,7 +163,6 @@ export async function getAdminData() {
       db.teacherQuote.count({ where: { status: "PENDING" } }),
       db.user.count({ where: { status: "BANNED" } }),
     ]),
-    getHomeworkAdminData(),
   ]);
-  return { notes, quotes, subjects, users, counts, ...homeworkData };
+  return { notes, quotes, subjects, users, counts };
 }

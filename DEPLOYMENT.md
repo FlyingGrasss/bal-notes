@@ -240,8 +240,7 @@ For the BAL Notes Vercel project:
 
 1. Add the variables from `.env.example` in both Preview and Production.
 2. Set Production `APP_URL` to `https://notlar.balogrenci.org`.
-3. Set Production `HOMEWORK_APP_URL` to `https://odevler.balogrenci.org`.
-4. Set Production `BAL_ID_CLIENT_ID` and `BAL_ID_CLIENT_SECRET` to the BAL
+3. Set Production `BAL_ID_CLIENT_ID` and `BAL_ID_CLIENT_SECRET` to the BAL
    Notes Production OAuth client credentials.
 4. Add `notes.balogrenci.org` as the custom domain and wait for HTTPS to be
    active.
@@ -252,6 +251,12 @@ For the BAL Notes Vercel project:
 BAL Notes reads `APP_URL` for canonical links and OAuth redirects. BAL ID and
 BALÖDER may use their own `NEXT_PUBLIC_SITE_URL` variables; do not substitute
 that variable for BAL Notes unless the application code is changed.
+
+BAL Ödevler is deployed separately from its own repository to
+`https://odevler.balogrenci.org`. It reads the same physical database and
+shares the BAL ID admin emails, but it no longer shares this codebase,
+deployment, or environment variables. See the `bal-odevler` repository for its
+setup and launch checklist.
 
 ## Database security before public launch
 
@@ -287,19 +292,20 @@ Supabase service-role keys, Blob tokens, mail/API keys, and all OAuth secrets
 before production deployment. Never commit `.env.local`, database dumps, or
 generated backups.
 
-## Homework launch checklist
+## BAL Ödevler deployment
 
-Homework is part of the existing BAL Notes deployment. It does not need a
-second domain, database, Supabase project, or environment variable.
-
-After applying the BAL Notes migration:
+BAL Ödevler is a separate application deployed from its own repository to
+`https://odevler.balogrenci.org`. It shares the same physical database
+(`balnotes` schema homework tables) and BAL ID admin emails, but has its own
+Vercel project, environment variables, and launch checklist. See the
+`bal-odevler` repository's `DEPLOYMENT.md` for the full checklist:
 
 1. Sign in with the BAL ID email listed in `ADMIN_EMAILS`.
 2. Open `/admin` and create the first teacher or smart-board writer account.
 3. Save or scan the generated QR link immediately. The private key is not
    recoverable from the database after the creation screen is closed.
-4. Open `/odevler` from a student browser and confirm the feed is readable
-   without signing in.
+4. Open the feed from a student browser and confirm it is readable without
+   signing in.
 5. Scan the writer QR, publish a homework item, edit it, and delete it.
 6. Rotate the writer key and confirm the previous QR no longer logs in.
 7. Revoke the writer account and confirm its existing session can no longer

@@ -1,14 +1,9 @@
 import type { MetadataRoute } from "next";
 import { db } from "@/lib/db";
-import { appUrl, homeworkAppUrl } from "@/lib/utils";
+import { appUrl } from "@/lib/utils";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const isHomework = process.env.SITE_MODE === "homework";
-  const siteUrl = (isHomework ? homeworkAppUrl() : appUrl()).replace(/\/$/, "");
-
-  if (isHomework) {
-    return [{ url: siteUrl, changeFrequency: "daily", priority: 1 }];
-  }
+  const siteUrl = appUrl().replace(/\/$/, "");
 
   const notes = await db.note.findMany({
     where: { status: "APPROVED" },

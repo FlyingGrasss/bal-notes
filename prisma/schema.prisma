@@ -33,27 +33,6 @@ enum UserStatus {
   @@schema("balnotes")
 }
 
-enum HomeworkSubject {
-  EDEBIYAT
-  MATEMATIK
-  FIZIK
-  KIMYA
-  BIYOLOJI
-  FELSEFE
-  TARIH
-  COGRAFYA
-  DIN_KULTURU
-
-  @@schema("balnotes")
-}
-
-enum HomeworkWriterKind {
-  TEACHER
-  SMART_BOARD
-
-  @@schema("balnotes")
-}
-
 model User {
   id             String     @id
   email          String     @unique
@@ -192,69 +171,5 @@ model TeacherQuote {
   @@index([subjectId, status, publishedAt])
   @@index([authorId, status, updatedAt])
   @@map("teacher_quotes")
-  @@schema("balnotes")
-}
-
-model HomeworkWriter {
-  id           String             @id @default(cuid())
-  name         String
-  kind         HomeworkWriterKind
-  fixedSubject HomeworkSubject?
-  keyHash      String             @unique
-  isActive     Boolean            @default(true)
-  lastLoginAt  DateTime?
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
-
-  sessions HomeworkWriterSession[]
-  homework Homework[]
-
-  @@index([kind, fixedSubject])
-  @@map("homework_writers")
-  @@schema("balnotes")
-}
-
-model HomeworkWriterSession {
-  id        String         @id @default(cuid())
-  writerId  String
-  writer    HomeworkWriter @relation(fields: [writerId], references: [id], onDelete: Cascade)
-  tokenHash String         @unique
-  expiresAt DateTime
-  createdAt DateTime       @default(now())
-  lastUsedAt DateTime?
-
-  @@index([writerId, expiresAt])
-  @@index([expiresAt])
-  @@map("homework_writer_sessions")
-  @@schema("balnotes")
-}
-
-model Homework {
-  id          String         @id @default(cuid())
-  writerId    String
-  writer      HomeworkWriter @relation(fields: [writerId], references: [id], onDelete: Cascade)
-  subject     HomeworkSubject
-  title       String
-  description String?        @db.Text
-  dueText     String
-  dueDate     DateTime?      @db.Date
-  isPast      Boolean        @default(false)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-
-  @@index([isPast, dueDate, subject])
-  @@index([writerId, updatedAt])
-  @@map("homework")
-  @@schema("balnotes")
-}
-
-model HomeworkLoginRateLimit {
-  bucketKey   String   @id
-  windowStart DateTime
-  attempts    Int      @default(0)
-  updatedAt   DateTime @updatedAt
-
-  @@index([windowStart])
-  @@map("homework_login_rate_limits")
   @@schema("balnotes")
 }

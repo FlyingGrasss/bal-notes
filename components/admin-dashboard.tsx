@@ -14,17 +14,14 @@ import { formatDate } from "@/lib/utils";
 import { Avatar } from "@/components/avatar";
 import { Button, buttonStyles } from "@/components/ui/button";
 import { ConfirmDialog, Dialog, DialogContent } from "@/components/ui/dialog";
-import { HomeworkAdminPanel } from "@/components/homework-admin-panel";
-import type { HomeworkDto, HomeworkWriterView } from "@/lib/homework-types";
 
 type Asset = { id: string; contentType: string; originalName: string };
 type AdminNote = { id: string; title: string; description: string | null; gradeLevel: GradeLevel; subjectName: string | null; customSubject: string | null; status: SubmissionStatus; rejectionReason: string | null; isRecommended: boolean; author: { id: string; name: string; picture: string | null }; assets: Asset[]; updatedAt: string };
 type AdminQuote = { id: string; teacherName: string; quote: string; context: string | null; gradeLevel: GradeLevel | null; subjectName: string | null; status: SubmissionStatus; rejectionReason: string | null; author: { id: string; name: string; email: string }; updatedAt: string };
 type AdminSubject = { id: string; name: string; gradeLevel: GradeLevel; sortOrder: number; isActive: boolean };
 type AdminUser = { id: string; email: string; name: string; picture: string | null; status: UserStatus; banReason: string | null; createdAt: string; noteCount: number; quoteCount: number };
-type AdminHomeworkWriter = HomeworkWriterView & { createdAt: string };
 
-export function AdminDashboard({ status, notes, quotes, subjects, users, homeworkWriters, homework, counts }: { status: SubmissionStatus; notes: AdminNote[]; quotes: AdminQuote[]; subjects: AdminSubject[]; users: AdminUser[]; homeworkWriters: AdminHomeworkWriter[]; homework: HomeworkDto[]; counts: number[] }) {
+export function AdminDashboard({ status, notes, quotes, subjects, users, counts }: { status: SubmissionStatus; notes: AdminNote[]; quotes: AdminQuote[]; subjects: AdminSubject[]; users: AdminUser[]; counts: number[] }) {
   const [activeStatus, setActiveStatus] = useState(status);
   const visibleNotes = notes.filter((note) => note.status === activeStatus);
   const visibleQuotes = quotes.filter((quote) => quote.status === activeStatus);
@@ -32,12 +29,11 @@ export function AdminDashboard({ status, notes, quotes, subjects, users, homewor
   return (
     <Tabs.Root defaultValue="notes">
       <div className="grid gap-3 sm:grid-cols-3"><Stat label="Bekleyen not" value={counts[0]} icon={<BookCheck />} /><Stat label="Bekleyen söz" value={counts[1]} icon={<Quote />} /><Stat label="Yasaklı hesap" value={counts[2]} icon={<ShieldOff />} /></div>
-      <Tabs.List className="mt-7 flex gap-1 overflow-x-auto rounded-2xl border border-line bg-card p-1.5"><Tab value="notes" label="Notlar" /><Tab value="quotes" label="Sözler" /><Tab value="subjects" label="Dersler" /><Tab value="users" label="Kullanıcılar" /><Tab value="homework" label="Ödevler" /></Tabs.List>
+      <Tabs.List className="mt-7 flex gap-1 overflow-x-auto rounded-2xl border border-line bg-card p-1.5"><Tab value="notes" label="Notlar" /><Tab value="quotes" label="Sözler" /><Tab value="subjects" label="Dersler" /><Tab value="users" label="Kullanıcılar" /></Tabs.List>
       <Tabs.Content value="notes" className="mt-6"><StatusFilters status={activeStatus} onChange={setActiveStatus} /><div className="mt-4 space-y-4">{visibleNotes.length ? visibleNotes.map((note) => <AdminNoteCard key={note.id} note={note} />) : <EmptyAdmin>Bu durumda not yok.</EmptyAdmin>}</div></Tabs.Content>
       <Tabs.Content value="quotes" className="mt-6"><StatusFilters status={activeStatus} onChange={setActiveStatus} /><div className="mt-4 space-y-4">{visibleQuotes.length ? visibleQuotes.map((quote) => <AdminQuoteCard key={quote.id} quote={quote} />) : <EmptyAdmin>Bu durumda öğretmen sözü yok.</EmptyAdmin>}</div></Tabs.Content>
       <Tabs.Content value="subjects" className="mt-6"><SubjectsPanel subjects={subjects} /></Tabs.Content>
       <Tabs.Content value="users" className="mt-6"><UsersPanel users={users} /></Tabs.Content>
-      <Tabs.Content value="homework" className="mt-6"><HomeworkAdminPanel writers={homeworkWriters} homework={homework} /></Tabs.Content>
     </Tabs.Root>
   );
 }

@@ -3,5 +3,4 @@ export const CACHE_TAGS = {
   note: (id: string) => `bal-notes:note:${id}`,
   quotes: "bal-notes:quotes",
   subjects: "bal-notes:subjects",
-  homework: "bal-notes:homework",
 } as const;
